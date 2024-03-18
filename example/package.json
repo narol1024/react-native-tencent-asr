@@ -6,12 +6,14 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "podinstall": "cd ./ios && bundle exec pod install --verbose",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "build:ios": "cd ios && xcodebuild -workspace TencentAsrExample.xcworkspace -scheme TencentAsrExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO"
   },
   "dependencies": {
     "react": "18.2.0",
-    "react-native": "0.73.6"
+    "react-native": "0.73.6",
+    "react-native-audio": "^4.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -20,6 +22,7 @@
     "@react-native/babel-preset": "0.73.21",
     "@react-native/metro-config": "0.73.5",
     "@react-native/typescript-config": "0.73.1",
+    "@types/react-native-audio": "^4.3.8",
     "babel-plugin-module-resolver": "^5.0.0"
   },
   "engines": {

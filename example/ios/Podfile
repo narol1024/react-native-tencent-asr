@@ -1,3 +1,5 @@
+ENV["HERMES_ENGINE_TARBALL_PATH"]="/Users/narol/react-native-artifacts-0.73.6-hermes-ios-debug.tar.gz"
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
