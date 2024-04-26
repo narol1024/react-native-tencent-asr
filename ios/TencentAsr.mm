@@ -18,7 +18,7 @@
 RCT_EXPORT_MODULE()
 
 // 初始化SDK
-RCT_EXPORT_METHOD(init:(NSString *)appId
+RCT_EXPORT_METHOD(configureParams:(NSString *)appId
                   secretId:(NSString *)secretId
                   secretKey:(NSString *)secretKey)
 {
@@ -26,9 +26,8 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
     self.secretId = secretId;
     self.secretKey = secretKey;
 }
-
 // 识别音频文件
-RCT_EXPORT_METHOD(recognizeFile: (NSString*)filePath  
+RCT_EXPORT_METHOD(recognizeFile:(NSDictionary *)customParams
                        resolver:(RCTPromiseResolveBlock)resolve
                        rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -36,23 +35,25 @@ RCT_EXPORT_METHOD(recognizeFile: (NSString*)filePath
     self.resolver = resolve;
     self.rejecter = reject;
     
-    NSLog(@"appId===%@",self.appId);
-    NSLog(@"secretId===%@",self.secretId);
-    NSLog(@"secretKey===%@",self.secretKey);
+    NSLog(@"appId: %@", self.appId);
+    NSLog(@"secretId: %@", self.secretId);
+    NSLog(@"secretKey: %@", self.secretKey);
 
     _recognizer = [[QCloudFlashFileRecognizer alloc] initWithAppId:self.appId secretId:self.secretId secretKey:self.secretKey];
     [_recognizer EnableDebugLog:YES];
     _recognizer.delegate = self;
 
     QCloudFlashFileRecognizeParams *params = [QCloudFlashFileRecognizeParams defaultRequestParams];
+
+    NSLog(@"filePath: %@", customParams[@"filePath"]);
+    NSLog(@"voiceFormat: %@", customParams[@"voiceFormat"]);
         
-    NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
+    NSData *audioData = [[NSData alloc] initWithContentsOfFile:customParams[@"filePath"]];
 
-    NSLog(@"filePath===%@",filePath);
 
-    params.engineModelType = @"16k_yue";
+    params.engineModelType = @"16k_zh";
     params.audioData = audioData;
-    params.voiceFormat = @"aac";
+    params.voiceFormat = customParams[@"voiceFormat"];
 
     [_recognizer recognize:params];
 }
@@ -66,16 +67,11 @@ RCT_EXPORT_METHOD(recognizeFile: (NSString*)filePath
         self.resolver(text);
     }else{
         NSLog(@"上传文件成功，但服务器端识别失败");
-        self.rejecter(@"status_error", @"Server recognition failed", nil);
+        self.rejecter(@"status_error", @"Recognition failed", nil);
     }
 }
 
-// 识别错误回调，网络错误，返回结果无法解析等
-- (void)FlashFileRecognizer:(QCloudFlashFileRecognizer *_Nullable)recognizer error:(nullable NSError *)error resultData:(nullable NSDictionary *)resultData
-{
-    NSLog(@"QCloudFlashFileRecognizer error:%@", error);
-    self.rejecter(@"recognition_error", @"Recognition failed", error);
-}
+
 -(void)FlashFileRecgnizerLogOutPutWithLog:(NSString *)log{
     NSLog(@"log===%@",log);
 }

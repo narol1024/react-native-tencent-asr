@@ -13,7 +13,7 @@
   "dependencies": {
     "react": "18.2.0",
     "react-native": "0.73.6",
-    "react-native-audio": "^4.3.0"
+    "react-native-audio-recorder-player": "^3.6.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -23,7 +23,8 @@
     "@react-native/metro-config": "0.73.5",
     "@react-native/typescript-config": "0.73.1",
     "@types/react-native-audio": "^4.3.8",
-    "babel-plugin-module-resolver": "^5.0.0"
+    "babel-plugin-module-resolver": "^5.0.0",
+    "react-native-dotenv": "^3.4.11"
   },
   "engines": {
     "node": ">=18"

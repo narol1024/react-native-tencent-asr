@@ -25,17 +25,21 @@ interface AsrConfig {
 
 interface RecognizeFileOptions {
   filePath: string;
+  voiceFormat?: 'aac' | 'm4a';
 }
 
-export function initAsr(config: AsrConfig) {
+export function configureAsrParams(config: AsrConfig) {
   const { appId, secretId, secretKey } = config || {};
   if (!appId || !secretId || !secretKey) {
     throw new Error('Parameter is missing.');
   }
-  TencentAsr.init(appId, secretId, secretKey);
+  TencentAsr.configureParams(appId, secretId, secretKey);
 }
 
 export function recognizeFile(options: RecognizeFileOptions): Promise<string> {
-  const { filePath } = options;
-  return TencentAsr.recognizeFile(filePath);
+  const { filePath, voiceFormat = 'aac' } = options;
+  return TencentAsr.recognizeFile({
+    filePath,
+    voiceFormat,
+  });
 }
