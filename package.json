@@ -41,14 +41,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/inarol/react-native-tencent-asr.git"
+    "url": "git+https://github.com/narol1024/react-native-tencent-asr.git"
   },
-  "author": "narol <narolcat@gmail.com> (https://github.com/inarol)",
+  "author": "narol <narolcat@gmail.com> (https://github.com/narol1024)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/inarol/react-native-tencent-asr/issues"
+    "url": "https://github.com/narol1024/react-native-tencent-asr/issues"
   },
-  "homepage": "https://github.com/inarol/react-native-tencent-asr#readme",
+  "homepage": "https://github.com/narol1024/react-native-tencent-asr#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
