@@ -26,6 +26,7 @@ interface AsrConfig {
 interface RecognizeFileOptions {
   filePath: string;
   voiceFormat?: 'aac' | 'm4a';
+  engineModelType?: string;
 }
 
 export function configureAsrParams(config: AsrConfig) {
@@ -37,9 +38,10 @@ export function configureAsrParams(config: AsrConfig) {
 }
 
 export function recognizeFile(options: RecognizeFileOptions): Promise<string> {
-  const { filePath, voiceFormat = 'aac' } = options;
+  const { filePath, voiceFormat = 'aac', engineModelType = '16k_zh' } = options;
   return TencentAsr.recognizeFile({
     filePath,
     voiceFormat,
+    engineModelType,
   });
 }

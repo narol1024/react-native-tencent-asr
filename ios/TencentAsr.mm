@@ -50,9 +50,8 @@ RCT_EXPORT_METHOD(recognizeFile:(NSDictionary *)customParams
         
     NSData *audioData = [[NSData alloc] initWithContentsOfFile:customParams[@"filePath"]];
 
-
-    params.engineModelType = @"16k_zh";
     params.audioData = audioData;
+    params.engineModelType = customParams[@"engineModelType"];
     params.voiceFormat = customParams[@"voiceFormat"];
 
     [_recognizer recognize:params];

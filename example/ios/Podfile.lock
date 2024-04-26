@@ -945,7 +945,7 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
-  - react-native-tencent-asr (0.2.0):
+  - react-native-tencent-asr (0.3.0):
     - glog
     - QCloudFileRecognizer
     - RCT-Folly (= 2022.05.16.00)
@@ -1360,7 +1360,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
-  react-native-tencent-asr: 8d8057e452595e5c97cbc7b5cd4c6339da2037b1
+  react-native-tencent-asr: 5688ca1fda86dfebabbf927796ad617c00497eb3
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
   React-NativeModulesApple: cd26e56d56350e123da0c1e3e4c76cb58a05e1ee
   React-perflogger: 5f49905de275bac07ac7ea7f575a70611fa988f2
@@ -1387,4 +1387,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: e62a5a73a008e96d8380e1b34dcddb170007d91c
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
