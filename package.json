@@ -27,6 +27,7 @@
   ],
   "scripts": {
     "example": "yarn workspace react-native-tencent-asr-example",
+    "podinstall": "cd ./example/ios && pod install",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",

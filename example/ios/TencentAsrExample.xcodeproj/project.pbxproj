@@ -14,6 +14,11 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-TencentAsrExample-TencentAsrExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-TencentAsrExample-TencentAsrExampleTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		FE8F127E2BDF5AF500B8CE8E /* QCloudRealTime.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE8F127D2BDF5AF500B8CE8E /* QCloudRealTime.xcframework */; };
+		FE8F12802BDF5AFE00B8CE8E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FE8F127F2BDF5AFE00B8CE8E /* libc++.tbd */; };
+		FE8F12822BDF5B0400B8CE8E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE8F12812BDF5B0400B8CE8E /* AVFoundation.framework */; };
+		FE8F12842BDF5B1000B8CE8E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE8F12832BDF5B1000B8CE8E /* AudioToolbox.framework */; };
+		FE8F12862BE285AB00B8CE8E /* QCloudOneSentence.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE8F12852BE285AB00B8CE8E /* QCloudOneSentence.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +49,11 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = TencentAsrExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-TencentAsrExample-TencentAsrExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TencentAsrExample-TencentAsrExampleTests.release.xcconfig"; path = "Target Support Files/Pods-TencentAsrExample-TencentAsrExampleTests/Pods-TencentAsrExample-TencentAsrExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FE8F127D2BDF5AF500B8CE8E /* QCloudRealTime.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = QCloudRealTime.xcframework; path = Pods/QCloudRealTime/sdk/QCloudRealTime.xcframework; sourceTree = "<group>"; };
+		FE8F127F2BDF5AFE00B8CE8E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		FE8F12812BDF5B0400B8CE8E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		FE8F12832BDF5B1000B8CE8E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		FE8F12852BE285AB00B8CE8E /* QCloudOneSentence.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = QCloudOneSentence.xcframework; path = Pods/QCloudOneSentence/sdk/QCloudOneSentence.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +69,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE8F12862BE285AB00B8CE8E /* QCloudOneSentence.xcframework in Frameworks */,
+				FE8F12842BDF5B1000B8CE8E /* AudioToolbox.framework in Frameworks */,
+				FE8F12822BDF5B0400B8CE8E /* AVFoundation.framework in Frameworks */,
+				FE8F12802BDF5AFE00B8CE8E /* libc++.tbd in Frameworks */,
+				FE8F127E2BDF5AF500B8CE8E /* QCloudRealTime.xcframework in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-TencentAsrExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,6 +114,11 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FE8F12852BE285AB00B8CE8E /* QCloudOneSentence.xcframework */,
+				FE8F12832BDF5B1000B8CE8E /* AudioToolbox.framework */,
+				FE8F12812BDF5B0400B8CE8E /* AVFoundation.framework */,
+				FE8F127F2BDF5AFE00B8CE8E /* libc++.tbd */,
+				FE8F127D2BDF5AF500B8CE8E /* QCloudRealTime.xcframework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-TencentAsrExample.a */,
 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-TencentAsrExample-TencentAsrExampleTests.a */,

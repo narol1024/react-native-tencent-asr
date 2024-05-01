@@ -74,6 +74,8 @@ PODS:
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
   - QCloudFileRecognizer (3.1.19)
+  - QCloudOneSentence (3.1.20)
+  - QCloudRealTime (3.1.19)
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -945,9 +947,11 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
-  - react-native-tencent-asr (0.3.0):
+  - react-native-tencent-asr (0.5.0):
     - glog
     - QCloudFileRecognizer
+    - QCloudOneSentence
+    - QCloudRealTime
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - React-nativeconfig (0.73.6)
@@ -1117,7 +1121,7 @@ PODS:
     - React-jsi (= 0.73.6)
     - React-logger (= 0.73.6)
     - React-perflogger (= 0.73.6)
-  - RNAudioRecorderPlayer (3.6.7):
+  - rn-fetch-blob (0.12.0):
     - React-Core
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
@@ -1196,7 +1200,7 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - RNAudioRecorderPlayer (from `../node_modules/react-native-audio-recorder-player`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1214,6 +1218,8 @@ SPEC REPOS:
     - libevent
     - OpenSSL-Universal
     - QCloudFileRecognizer
+    - QCloudOneSentence
+    - QCloudRealTime
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1314,15 +1320,15 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  RNAudioRecorderPlayer:
-    :path: "../node_modules/react-native-audio-recorder-player"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
   boost: 928ed5d5c997f05004251aaf81265695db8d134e
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
+  DoubleConversion: 1cb125321145c2d9ad7cdf84e60f0e206b96d209
   FBLazyVector: f64d1e2ea739b4d8f7e4740cde18089cd97fe864
   FBReactNativeSpec: 9f2b8b243131565335437dba74923a8d3015e780
   Flipper: c7a0093234c4bdd456e363f2f19b2e4b27652d44
@@ -1339,6 +1345,8 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   QCloudFileRecognizer: 0fdb6c3dd79b9206a0ec1e5d4158d7b4988f6d5c
+  QCloudOneSentence: 0e91b83279b9a7dc1641a0ea7f3c88817128269c
+  QCloudRealTime: 1d2aae140a69cd0c4f866c4fcb069e79a2b7fa5e
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: ca1d7414aba0b27efcfa2ccd37637edb1ab77d96
   RCTTypeSafety: 678e344fb976ff98343ca61dc62e151f3a042292
@@ -1360,7 +1368,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
-  react-native-tencent-asr: 5688ca1fda86dfebabbf927796ad617c00497eb3
+  react-native-tencent-asr: eeed1d86e5d1856fdcc9a7327b9ea7dba40665b4
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
   React-NativeModulesApple: cd26e56d56350e123da0c1e3e4c76cb58a05e1ee
   React-perflogger: 5f49905de275bac07ac7ea7f575a70611fa988f2
@@ -1381,10 +1389,10 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 9636eee762c699ca7c85751a359101797e4c8b3b
   React-utils: d16c1d2251c088ad817996621947d0ac8167b46c
   ReactCommon: 2aa35648354bd4c4665b9a5084a7d37097b89c10
-  RNAudioRecorderPlayer: 9b34adc281800e5b19258f1b91d889b1ef3abdd6
+  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: e62a5a73a008e96d8380e1b34dcddb170007d91c
+PODFILE CHECKSUM: e4ee8727eec229775d23f88224ad5fd9564c676e
 
 COCOAPODS: 1.15.2

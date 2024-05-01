@@ -1,74 +1,55 @@
-import * as React from 'react';
+import React from 'react';
 
-import { StyleSheet, View, Text, Button } from 'react-native';
-import { configureAsrParams, recognizeFile } from 'react-native-tencent-asr';
-import AudioRecorderPlayer, {
-  AVEncodingOption,
-} from 'react-native-audio-recorder-player';
+import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 
-const APP_ID = process.env.APP_ID || '';
-const SECRET_ID = process.env.SECRET_ID || '';
-const SECRET_KEY = process.env.SECRET_KEY || '';
-
-configureAsrParams({
-  appId: APP_ID,
-  secretId: SECRET_ID,
-  secretKey: SECRET_KEY,
-});
-
-const audioRecorderPlayer = new AudioRecorderPlayer();
+import { RealTimeRecognizerApp } from './RealTimeRecognizerApp';
+import { FlashFileRecognizerApp } from './FlashFileRecognizerApp';
+import { OneSentenceRecognizerApp } from './OneSentenceRecognizer';
 
 export default function App() {
   const [result, setResult] = React.useState<string>('');
-  const [isRecording, setIsRecording] = React.useState(false);
   return (
-    <View style={styles.container}>
-      {result && <Text>录音识别结果: {result}</Text>}
-      <View></View>
-      <Button
-        title={isRecording ? '停止录音' : '开始录音'}
-        onPress={async () => {
-          if (isRecording) {
-            try {
-              const audioPath = await audioRecorderPlayer.stopRecorder();
-              const result = await recognizeFile({
-                filePath: audioPath.replace('file://', ''),
-              });
-              setResult(result);
-            } catch (err) {
-              console.error(err);
-            } finally {
-              setIsRecording(false);
-            }
-          } else {
-            try {
-              const audioSet = {
-                AVFormatIDKeyIOS: AVEncodingOption.aac,
-              };
-
-              await audioRecorderPlayer.startRecorder(undefined, audioSet);
-              audioRecorderPlayer.addRecordBackListener(() => {});
-            } catch (err) {
-              console.error(err);
-            } finally {
-              setIsRecording(true);
-            }
-          }
-        }}
-      />
-    </View>
+    <SafeAreaView style={styles.app}>
+      <View style={styles.container}>
+        <View style={styles.resultView}>
+          {result && <Text>识别结果: {result}</Text>}
+        </View>
+        <RealTimeRecognizerApp
+          onRecognize={(result: string) => {
+            setResult(result);
+          }}
+        />
+        <OneSentenceRecognizerApp
+          onRecognize={(result: string) => {
+            setResult(result);
+          }}
+        />
+        <FlashFileRecognizerApp
+          onRecognize={(result: string) => {
+            setResult(result);
+          }}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  app: {
+    width: '100%',
+    height: '100%',
+  },
   container: {
     flex: 1,
+    padding: 10,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
-  box: {
-    width: 60,
-    height: 60,
+  resultView: {
+    width: '100%',
+    minHeight: 240,
     marginVertical: 20,
+    borderColor: '#888',
+    borderWidth: 1,
   },
 });
