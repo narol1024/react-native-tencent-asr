@@ -149,7 +149,7 @@ interface FlashFileRecognizerParams {
 
 // 实时语音模块
 export const RealTimeRecognizerModule = {
-  configure(params: CommonParams): void {
+  configure(params: CommonParams & RealTimeRecognizerParams): void {
     NativeModules.RealTimeRecognizerModule.configure(params);
   },
   startRealTimeRecognizer(): Promise<string> {
@@ -162,7 +162,7 @@ export const RealTimeRecognizerModule = {
 // 一句话识别模块
 export const OneSentenceRecognizerModule = {
   // 配置AppID、SecretID、SecretKey
-  configure(params: CommonParams & RealTimeRecognizerParams): void {
+  configure(params: CommonParams): void {
     NativeModules.OneSentenceRecognizerModule.configure(params);
   },
   // 一句话识别(快捷识别, 网络URL)

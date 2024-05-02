@@ -134,10 +134,6 @@ OneSentenceRecognizerModule.recognizeWithParams({
 ```javascript
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
 
-OneSentenceRecognizerModule.recognizeWithParams({
-  filePath: 'Your audio file path',
-  voiceFormat: 'mp3',
-});
 OneSentenceRecognizerModule.startRecognizeWithRecorder();
 OneSentenceRecognizerModule.stopRecognizeWithRecorder();
 ```
