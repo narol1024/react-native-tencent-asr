@@ -31,7 +31,7 @@ export function FlashFileRecognizerApp(props: any) {
               filePath: dirs.DocumentDir + '/202405012158499.mp3',
               voiceFormat: 'mp3',
             });
-            props.onRecognize(result);
+            props.onRecognize(result.text);
           } catch (error) {
             props.onRecognize('识别错误');
           }

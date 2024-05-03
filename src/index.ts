@@ -192,7 +192,9 @@ export const FlashFileRecognizerModule = {
     NativeModules.FlashFileRecognizerModule.configure(params);
   },
   // 快速识别
-  flashFileRecognizer(params: FlashFileRecognizerParams): Promise<string> {
+  flashFileRecognizer(
+    params: FlashFileRecognizerParams
+  ): Promise<{ text: string; resultData: Object }> {
     return NativeModules.FlashFileRecognizerModule.flashFileRecognizer(params);
   },
 };

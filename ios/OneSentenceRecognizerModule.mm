@@ -1,4 +1,4 @@
-// @see SDK doc: https://cloud.tencent.com/document/product/1093/52580
+// @see SDK doc: https://cloud.tencent.com/document/product/1093/36502
 
 #import "OneSentenceRecognizerModule.h"
 
@@ -29,7 +29,8 @@ RCT_EXPORT_MODULE()
 
 // 配置AppID、SecretID、SecretKey, Token
 RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
-  NSLog(@"一句话识别, 用户自定义参数: %@", configParams);
+  NSLog(@"一句话识别, 配置AppID、SecretID、SecretKey, Token参数: %@",
+        configParams);
 
   NSString *appId = configParams[@"appId"];
   NSString *secretId = configParams[@"secretId"];
@@ -166,13 +167,27 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
 - (void)oneSentenceRecognizerDidStartRecord:
             (QCloudSentenceRecognizer *)recognizer
                                       error:(nullable NSError *)error {
+  NSDictionary *body = error ? @{
+    @"code" : error.userInfo[@"Code"],
+    @"message" : error.userInfo[@"Message"]
+  }
+                             : nil;
+
+  NSLog(@"开始录音回调: %@", body);
+  [self sendEventWithName:@"OneSentenceRecognizerDidStartRecord" body:body];
 }
 /**
  * 结束录音回调, SDK通过此方法回调后内部开始上报语音数据进行识别
  */
-- (void)oneSentenceRecognizerDidEndRecord:
-    (QCloudSentenceRecognizer *)recognizer {
+- (void)oneSentenceRecognizerDidEndRecord:(QCloudSentenceRecognizer *)recognizer
+                            audioFilePath:(nonnull NSString *)audioFilePath {
+  NSDictionary *resultBody = @{
+    @"audioFilePath" : audioFilePath,
+  };
+  NSLog(@"结束录音回调: %@", resultBody);
+  [self sendEventWithName:@"OneSentenceRecognizerDidEndRecord" body:resultBody];
 }
+
 /**
  * 录音音量实时回调用
  * @param recognizer 识别器实例
@@ -181,6 +196,12 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
 - (void)oneSentenceRecognizerDidUpdateVolume:
             (QCloudSentenceRecognizer *)recognizer
                                       volume:(float)volume {
+  NSDictionary *resultBody = @{
+    @"volume" : @(volume),
+  };
+  NSLog(@"录音音量实时回调: %@", resultBody);
+  [self sendEventWithName:@"OneSentenceRecognizerDidUpdateVolume"
+                     body:resultBody];
 }
 /**
  * 日志输出

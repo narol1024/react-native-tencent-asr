@@ -1,4 +1,4 @@
-// @see SDK doc: https://cloud.tencent.com/document/product/1093/52580
+// @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
 
 #import "RealTimeRecognizerModule.h"
 

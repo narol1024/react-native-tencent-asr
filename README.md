@@ -9,13 +9,13 @@ A React Native wrapper around the Tencent Cloud ASR SDK for Android and iOS.
 
 ## Installation
 
-### NPM installation
+### NPM
 
 ```sh
 npm install react-native-tencent-asr
 ```
 
-### IOS
+### iOS
 
 执行`pod install`
 
@@ -44,6 +44,30 @@ Coming soon...
 
 ### 实时识别
 
+#### 配置参数
+
+```javascript
+import { RealTimeRecognizerModule } from 'react-native-tencent-asr';
+
+// 配置AppID、SecretID、SecretKey
+RealTimeRecognizerModule.configure({
+  appId: APP_ID,
+  secretId: SECRET_ID,
+  secretKey: SECRET_KEY,
+});
+```
+
+#### 识别任务
+
+```javascript
+// 开始实时识别
+RealTimeRecognizerModule.startRealTimeRecognizer();
+// 结束实时识别
+RealTimeRecognizerModule.stopRealTimeRecognizer();
+```
+
+#### 注册回调事件
+
 ```javascript
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import { RealTimeRecognizerModule } from 'react-native-tencent-asr';
@@ -52,24 +76,25 @@ const RealTimeRecognizerModuleEmitter = new NativeEventEmitter(
   NativeModules.RealTimeRecognizerModule
 );
 
-// 配置参数
-RealTimeRecognizerModule.configure({
-  appId: APP_ID,
-  secretId: SECRET_ID,
-  secretKey: SECRET_KEY,
-});
 // 注册事件
 RealTimeRecognizerModuleEmitter.addListener(
   'RealTimeRecognizerOnSegmentSuccessRecognize',
   (result) => {
-    console.log('语音的识别结果', result);
+    console.log('语音识别结果', result);
   }
 );
-// 开始实时识别
-RealTimeRecognizerModule.startRealTimeRecognizer();
-// 结束实时识别
-RealTimeRecognizerModule.stopRealTimeRecognizer();
 ```
+
+详细事件列表，请查看SDK文档, https://cloud.tencent.com/document/product/1093/35723
+
+- RealTimeRecognizerOnSliceRecognize
+- RealTimeRecognizerOnSegmentSuccessRecognize
+- RealTimeRecognizerDidFinish
+- RealTimeRecognizerDidError
+- RealTimeRecognizerDidStartRecord
+- RealTimeRecognizerDidStopRecord
+- RealTimeRecognizerDidUpdateVolumeDB
+- RealTimeRecognizerDidSaveAudioDataAsFile
 
 ### 一句话识别
 
@@ -84,6 +109,31 @@ OneSentenceRecognizerModule.configure({
   secretId: SECRET_ID,
   secretKey: SECRET_KEY,
 });
+```
+
+#### 一句话识别(网络URL)
+
+```javascript
+OneSentenceRecognizerModule.recognizeWithUrl({
+  url: 'The Remote url of the audio file, such as https://xx.com/x.mp3',
+  voiceFormat: 'mp3',
+});
+```
+
+#### 一句话识别(本地音频)
+
+```javascript
+OneSentenceRecognizerModule.recognizeWithParams({
+  filePath: 'The audio file path',
+  voiceFormat: 'mp3',
+});
+```
+
+#### 一句话识别(内置录音器)
+
+```javascript
+OneSentenceRecognizerModule.startRecognizeWithRecorder();
+OneSentenceRecognizerModule.stopRecognizeWithRecorder();
 ```
 
 #### 注册回调事件
@@ -107,36 +157,12 @@ OneSentenceRecognizerModuleEmitter.addListener(
 );
 ```
 
-#### 一句话识别(网络URL)
+详细事件列表，请查看SDK文档, https://cloud.tencent.com/document/product/1093/36502
 
-```javascript
-import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
-
-OneSentenceRecognizerModule.recognizeWithUrl({
-  url: 'Your audio file remote url, such as https://xx.com/x.mp3',
-  voiceFormat: 'mp3',
-});
-```
-
-#### 一句话识别(本地音频)
-
-```javascript
-import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
-
-OneSentenceRecognizerModule.recognizeWithParams({
-  filePath: 'Your audio file path',
-  voiceFormat: 'mp3',
-});
-```
-
-#### 一句话识别(内置录音器)
-
-```javascript
-import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
-
-OneSentenceRecognizerModule.startRecognizeWithRecorder();
-OneSentenceRecognizerModule.stopRecognizeWithRecorder();
-```
+- OneSentenceRecognizerDidRecognize
+- OneSentenceRecognizerDidStartRecord
+- OneSentenceRecognizerDidEndRecord
+- OneSentenceRecognizerDidUpdateVolume
 
 ### 录音文件识别极速版
 
@@ -149,10 +175,14 @@ FlashFileRecognizerModule.configure({
   secretKey: SECRET_KEY,
 });
 
-const result = await FlashFileRecognizerModule.flashFileRecognizer({
-  filePath: 'Your audio file path',
-  voiceFormat: 'mp3',
-});
+try {
+  const result = await FlashFileRecognizerModule.flashFileRecognizer({
+    filePath: 'The audio file path',
+    voiceFormat: 'mp3',
+  });
+} catch (err) {
+  // handle error
+}
 ```
 
 ## Screenshot

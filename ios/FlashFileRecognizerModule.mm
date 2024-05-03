@@ -1,4 +1,4 @@
-// @see SDK doc: https://cloud.tencent.com/document/product/1093/52580
+// @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
 
 #import "FlashFileRecognizerModule.h"
 
@@ -15,7 +15,8 @@ RCT_EXPORT_MODULE()
 
 // 配置AppID、SecretID、SecretKey, Token
 RCT_EXPORT_METHOD(configure : (NSDictionary *)params) {
-
+  NSLog(@"录音文件识别极速版, 配置AppID、SecretID、SecretKey, Token参数: %@",
+        params);
   _appId = params[@"appId"];
   _secretId = params[@"secretId"];
   _secretKey = params[@"secretKey"];
@@ -96,7 +97,11 @@ RCT_EXPORT_METHOD(flashFileRecognizer
                  resultData:(nullable NSDictionary *)resultData {
   if (status == 0) {
     NSLog(@"识别成功");
-    _recognizerResolve(text);
+    NSDictionary *resultBody = @{
+      @"text" : text,
+      @"resultData" : resultData,
+    };
+    _recognizerResolve(resultBody);
   } else {
     NSLog(@"识别失败");
     _recognizerReject(@"status_error", @"Recognition failed", nil);
