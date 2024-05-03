@@ -78,7 +78,7 @@ const RealTimeRecognizerModuleEmitter = new NativeEventEmitter(
 
 // 注册事件
 RealTimeRecognizerModuleEmitter.addListener(
-  'RealTimeRecognizerOnSegmentSuccessRecognize',
+  'OnSegmentSuccessRecognize',
   (result) => {
     console.log('语音识别结果', result);
   }
@@ -87,14 +87,14 @@ RealTimeRecognizerModuleEmitter.addListener(
 
 详细事件列表，请查看SDK文档, https://cloud.tencent.com/document/product/1093/35723
 
-- RealTimeRecognizerOnSliceRecognize
-- RealTimeRecognizerOnSegmentSuccessRecognize
-- RealTimeRecognizerDidFinish
-- RealTimeRecognizerDidError
-- RealTimeRecognizerDidStartRecord
-- RealTimeRecognizerDidStopRecord
-- RealTimeRecognizerDidUpdateVolumeDB
-- RealTimeRecognizerDidSaveAudioDataAsFile
+- OnSliceRecognize
+- OnSegmentSuccessRecognize
+- DidFinish
+- DidError
+- DidStartRecord
+- DidStopRecord
+- DidUpdateVolumeDB
+- DidSaveAudioDataAsFile
 
 ### 一句话识别
 
@@ -146,7 +146,7 @@ const OneSentenceRecognizerModuleEmitter = new NativeEventEmitter(
 );
 
 OneSentenceRecognizerModuleEmitter.addListener(
-  'OneSentenceRecognizerDidRecognize',
+  'DidRecognize',
   (result) => {
     if (result.error) {
       console.log('语音识别失败', result.error);
@@ -159,10 +159,10 @@ OneSentenceRecognizerModuleEmitter.addListener(
 
 详细事件列表，请查看SDK文档, https://cloud.tencent.com/document/product/1093/36502
 
-- OneSentenceRecognizerDidRecognize
-- OneSentenceRecognizerDidStartRecord
-- OneSentenceRecognizerDidEndRecord
-- OneSentenceRecognizerDidUpdateVolume
+- DidRecognize
+- DidStartRecord
+- DidEndRecord
+- DidUpdateVolume
 
 ### 录音文件识别极速版
 

@@ -13,7 +13,7 @@ export function RealTimeRecognizerApp(props: any) {
 
   useEffect(() => {
     RealTimeRecognizerModuleEmitter.addListener(
-      'RealTimeRecognizerOnSegmentSuccessRecognize',
+      'OnSegmentSuccessRecognize',
       (result) => {
         console.log('语音的识别结果', result);
         props.onRecognize(result.recognizedText);
@@ -21,7 +21,7 @@ export function RealTimeRecognizerApp(props: any) {
     );
     return () => {
       RealTimeRecognizerModuleEmitter.removeAllListeners(
-        'RealTimeRecognizerOnSegmentSuccessRecognize'
+        'OnSegmentSuccessRecognize'
       );
     };
   }, [props]);

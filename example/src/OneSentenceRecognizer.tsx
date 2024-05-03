@@ -20,21 +20,16 @@ const OneSentenceRecognizerModuleEmitter = new NativeEventEmitter(
 export function OneSentenceRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
   useEffect(() => {
-    OneSentenceRecognizerModuleEmitter.addListener(
-      'OneSentenceRecognizerDidRecognize',
-      (result) => {
-        if (result.error) {
-          console.log('语音识别失败', result.error);
-          return;
-        }
-        console.log('语音识别结果', result);
-        props.onRecognize(result.text);
+    OneSentenceRecognizerModuleEmitter.addListener('DidRecognize', (result) => {
+      if (result.error) {
+        console.log('语音识别失败', result.error);
+        return;
       }
-    );
+      console.log('语音识别结果', result);
+      props.onRecognize(result.text);
+    });
     return () => {
-      OneSentenceRecognizerModuleEmitter.removeAllListeners(
-        'OneSentenceRecognizerDidRecognize'
-      );
+      OneSentenceRecognizerModuleEmitter.removeAllListeners('DidRecognize');
     };
   }, [props]);
 
