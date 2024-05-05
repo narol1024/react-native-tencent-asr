@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { PermissionsAndroid } from 'react-native';
 
 import { Button, StyleSheet, View } from 'react-native';
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
@@ -13,9 +14,9 @@ export function OneSentenceRecognizerApp(props: any) {
     OneSentenceRecognizerModule.addListener('DidRecognize', (result) => {
       if (result.error) {
         console.log('语音识别失败', result.error);
+        props.onRecognize('识别失败');
         return;
       }
-      console.log('语音识别结果', result);
       props.onRecognize(result.data.result);
     });
     return () => {
@@ -53,7 +54,7 @@ export function OneSentenceRecognizerApp(props: any) {
               'https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202405012158499.mp3'
             );
             OneSentenceRecognizerModule.recognizeWithParams({
-              filePath: dirs.DocumentDir + '/202405012158499.mp3',
+              audioFilePath: dirs.DocumentDir + '/202405012158499.mp3',
               voiceFormat: 'mp3',
             });
           } catch (error) {
@@ -64,12 +65,17 @@ export function OneSentenceRecognizerApp(props: any) {
       <Button
         title={isRecording ? '停止录音' : '一句话识别(内置录音器)'}
         onPress={async () => {
-          if (isRecording) {
-            OneSentenceRecognizerModule.stopRecognizeWithRecorder();
-            setIsRecording(false);
-          } else {
-            OneSentenceRecognizerModule.startRecognizeWithRecorder();
-            setIsRecording(true);
+          const granted = await PermissionsAndroid.request(
+            'android.permission.RECORD_AUDIO'
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            if (isRecording) {
+              OneSentenceRecognizerModule.stopRecognizeWithRecorder();
+              setIsRecording(false);
+            } else {
+              OneSentenceRecognizerModule.recognizeWithRecorder();
+              setIsRecording(true);
+            }
           }
         }}
       />

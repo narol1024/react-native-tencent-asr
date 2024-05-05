@@ -1,4 +1,9 @@
-import { NativeModules, NativeEventEmitter } from 'react-native';
+import {
+  NativeModules,
+  NativeEventEmitter,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 import type { EmitterSubscription } from 'react-native';
 import type {
   CommonParams,
@@ -7,7 +12,7 @@ import type {
   RecognizeWithUrlParams,
   RecognizeWithParams,
 } from './types';
-import { keysToCamelCase } from './util';
+import { keysToCamelCase, normalizedJson } from './util';
 
 const NativeModulesEmitter = new NativeEventEmitter(
   NativeModules.OneSentenceRecognizerModule
@@ -33,6 +38,7 @@ function addListener(
     error: RecognizerError;
   }) => void
 ): EmitterSubscription;
+
 // 开始录音回调
 function addListener(
   eventName: 'DidStartRecord',
@@ -48,13 +54,18 @@ function addListener(
   eventName: 'DidUpdateVolume',
   eventCallback: (result: { volume: number }) => void
 ): EmitterSubscription;
+// 是否授权麦克风事件
+function addListener(
+  eventName: 'RequestAudioPermission',
+  eventCallback: (result: { granted: boolean }) => void
+): EmitterSubscription;
 // 其它事件
 function addListener(
   eventName: string,
   eventCallback: (result: any) => void
 ): EmitterSubscription {
   return NativeModulesEmitter.addListener(eventName, (result) => {
-    return eventCallback(keysToCamelCase(result));
+    return eventCallback(keysToCamelCase(normalizedJson(result)));
   });
 }
 
@@ -72,11 +83,25 @@ export const OneSentenceRecognizerModule = {
   recognizeWithParams(params: RecognizeWithParams) {
     NativeModules.OneSentenceRecognizerModule.recognizeWithParams(params);
   },
-  // 一句话识别(内置录音器), 开始录音
-  startRecognizeWithRecorder(params: { engineModelType?: string } = {}) {
-    NativeModules.OneSentenceRecognizerModule.startRecognizeWithRecorder(
-      params
-    );
+  // 一句话识别(内置录音器), 开始录音, 安卓需要先请求录音权限
+  async recognizeWithRecorder(params: { engineModelType?: string } = {}) {
+    const _recognizeWithRecorder = () => {
+      NativeModules.OneSentenceRecognizerModule.recognizeWithRecorder(params);
+    };
+    if (Platform.OS === 'android') {
+      const permission = 'android.permission.RECORD_AUDIO';
+      const granted = await PermissionsAndroid.check(permission);
+      if (!granted) {
+        const requestGranted = await PermissionsAndroid.request(permission);
+        if (requestGranted === PermissionsAndroid.RESULTS.GRANTED) {
+          _recognizeWithRecorder();
+        }
+      } else {
+        _recognizeWithRecorder();
+      }
+    } else {
+      _recognizeWithRecorder();
+    }
   },
   //  一句话识别(内置录音器), 停止录音
   stopRecognizeWithRecorder() {

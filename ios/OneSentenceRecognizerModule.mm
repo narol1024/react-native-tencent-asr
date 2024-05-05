@@ -101,7 +101,7 @@ RCT_EXPORT_METHOD(recognizeWithUrl : (NSDictionary *)configParams) {
 RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
   NSLog(@"完整接口参数: %@", configParams);
   NSString *url = configParams[@"url"];
-  NSString *filePath = configParams[@"filePath"];
+  NSString *audioFilePath = configParams[@"audioFilePath"];
 
   // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
@@ -115,7 +115,7 @@ RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
     requestParams.url = url;
     requestParams.sourceType = QCloudAudioSourceTypeUrl;
   } else {
-    NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
+    NSData *audioData = [[NSData alloc] initWithContentsOfFile:audioFilePath];
     requestParams.data = audioData;
     requestParams.sourceType = QCloudAudioSourceTypeAudioData;
   }
@@ -131,7 +131,7 @@ RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
 }
 
 // 通过 SDK 内置录音器调用，开始录音
-RCT_EXPORT_METHOD(startRecognizeWithRecorder : (NSDictionary *)configParams) {
+RCT_EXPORT_METHOD(recognizeWithRecorder : (NSDictionary *)configParams) {
   if (_isRecording) {
     return;
   }

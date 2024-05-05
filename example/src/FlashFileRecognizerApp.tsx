@@ -29,7 +29,7 @@ export function FlashFileRecognizerApp(props: any) {
               'https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202405012158499.mp3'
             );
             const result = await FlashFileRecognizerModule.recognize({
-              filePath: dirs.DocumentDir + '/202405012158499.mp3',
+              audioFilePath: dirs.DocumentDir + '/202405012158499.mp3',
             });
             props.onRecognize(result.flashResult[0]?.text);
           } catch (error) {

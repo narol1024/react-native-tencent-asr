@@ -1,3 +1,7 @@
+```
+在调用内置录音器时，需要提前授权
+```
+
 # react-native-tencent-asr
 
 [![npm version](https://img.shields.io/npm/v/react-native-tencent-asr.svg?style=flat)](https://www.npmjs.com/package/react-native-tencent-asr)

@@ -75,9 +75,9 @@ RCT_EXPORT_METHOD(recognize
                   : (RCTPromiseRejectBlock)reject) {
   NSLog(@"录音文件识别极速版, 用户自定义参数: %@", configParams);
 
-  NSString *filePath = configParams[@"filePath"];
+  NSString *audioFilePath = configParams[@"audioFilePath"];
   // 音频数据
-  NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
+  NSData *audioData = [[NSData alloc] initWithContentsOfFile:audioFilePath];
   // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
   QCloudFlashFileRecognizeParams *requestParams =

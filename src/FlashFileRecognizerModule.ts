@@ -4,7 +4,7 @@ import type {
   FlashFileRecognizerParams,
   FlashFileRecognizerResult,
 } from './types';
-import { keysToCamelCase, transformToJson } from './util';
+import { keysToCamelCase, normalizedJson } from './util';
 
 // 录音文件识别极速版模块
 export const FlashFileRecognizerModule = {
@@ -15,13 +15,13 @@ export const FlashFileRecognizerModule = {
   // 快速识别
   async recognize(params: {
     // 音频文件路径
-    filePath: string;
+    audioFilePath: string;
   }): Promise<FlashFileRecognizerResult> {
     try {
       const result =
         await NativeModules.FlashFileRecognizerModule.recognize(params);
       return keysToCamelCase(
-        transformToJson(result)
+        normalizedJson(result)
       ) as unknown as FlashFileRecognizerResult;
     } catch (error) {
       return Promise.reject(error);

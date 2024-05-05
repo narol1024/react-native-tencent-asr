@@ -70,7 +70,7 @@ export interface RecognizeWithUrlParams extends OneSentenceRecognizerParams {
 
 export interface RecognizeWithParams extends OneSentenceRecognizerParams {
   url?: string;
-  filePath?: string;
+  audioFilePath?: string;
 }
 
 export interface RealTimeRecognizeParams extends RecognizerRequestParams {
