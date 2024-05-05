@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from 'react';
 
-import { Button, NativeEventEmitter, NativeModules } from 'react-native';
+import { Button } from 'react-native';
 import { RealTimeRecognizerModule } from 'react-native-tencent-asr';
 import { APP_ID, SECRET_ID, SECRET_KEY } from './constants';
-
-const RealTimeRecognizerModuleEmitter = new NativeEventEmitter(
-  NativeModules.RealTimeRecognizerModule
-);
 
 export function RealTimeRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
-    RealTimeRecognizerModuleEmitter.addListener(
+    RealTimeRecognizerModule.addListener(
       'OnSegmentSuccessRecognize',
       (result) => {
         console.log('语音的识别结果', result);
         props.onRecognize(result.recognizedText);
       }
     );
+    RealTimeRecognizerModule.addListener('DidSaveAudioDataAsFile', (result) => {
+      console.log('DidSaveAudioDataAsFile', result);
+    });
     return () => {
-      RealTimeRecognizerModuleEmitter.removeAllListeners(
-        'OnSegmentSuccessRecognize'
-      );
+      RealTimeRecognizerModule.removeAllListeners('OnSegmentSuccessRecognize');
     };
   }, [props]);
 

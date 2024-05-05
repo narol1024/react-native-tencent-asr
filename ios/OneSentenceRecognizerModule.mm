@@ -3,6 +3,12 @@
 #import "OneSentenceRecognizerModule.h"
 
 @implementation OneSentenceRecognizerModule {
+  NSString *_appId;
+  NSString *_secretId;
+  NSString *_secretKey;
+  NSString *_token;
+  NSDictionary *_requestParams;
+
   QCloudSentenceRecognizer *_recognizer;
   bool _isRecording;
   bool _hasListeners;
@@ -25,42 +31,65 @@
   ];
 }
 
-RCT_EXPORT_MODULE()
-
-// 配置AppID、SecretID、SecretKey, Token
-RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
-  NSLog(@"一句话识别, 配置AppID、SecretID、SecretKey, Token参数: %@",
-        configParams);
-
-  NSString *appId = configParams[@"appId"];
-  NSString *secretId = configParams[@"secretId"];
-  NSString *secretKey = configParams[@"secretKey"];
-  NSString *token = configParams[@"token"];
-
+// 初始化Recognizer
+- (void)initializeRecognizer {
   // 直接Token鉴权
-  if ([token isEqual:@""]) {
-    _recognizer = [[QCloudSentenceRecognizer alloc] initWithAppId:appId
-                                                         secretId:secretId
-                                                        secretKey:secretKey];
+  if ([_token isEqual:@""]) {
+    _recognizer = [[QCloudSentenceRecognizer alloc] initWithAppId:_appId
+                                                         secretId:_secretId
+                                                        secretKey:_secretKey];
 
   } else {
-    _recognizer = [[QCloudSentenceRecognizer alloc] initWithAppId:appId
-                                                         secretId:secretId
-                                                        secretKey:secretKey
-                                                            token:token];
+    _recognizer = [[QCloudSentenceRecognizer alloc] initWithAppId:_appId
+                                                         secretId:_secretId
+                                                        secretKey:_secretKey
+                                                            token:_token];
   }
 
   _recognizer.delegate = self;
 }
 
+RCT_EXPORT_MODULE()
+
+// 配置AppID、SecretID、SecretKey, Token
+RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
+  NSLog(@"一句话识别模块", @"配置AppID、SecretID、SecretKey, Token参数: %@",
+        configParams);
+
+  // 设置鉴权的参数
+  _appId = configParams[@"appId"];
+  _secretId = configParams[@"secretId"];
+  _secretKey = configParams[@"secretKey"];
+  _token = configParams[@"token"];
+
+  // 设置自定义参数
+  NSMutableDictionary *requestParams = [NSMutableDictionary dictionary];
+  requestParams[@"engSerViceType"] =
+      configParams[@"engineModelType"] ?: @"16k_zh";
+  requestParams[@"voiceFormat"] = configParams[@"voiceFormat"] ?: @"aac";
+  requestParams[@"filterDirty"] =
+      @([configParams[@"filterDirty"] integerValue] ?: 0);
+  requestParams[@"filterModal"] =
+      @([configParams[@"filterModal"] integerValue] ?: 0);
+  requestParams[@"filterPunc"] =
+      @([configParams[@"filterPunc"] integerValue] ?: 0);
+  requestParams[@"convertNumMode"] =
+      @([configParams[@"convertNumMode"] integerValue] ?: 1);
+  requestParams[@"wordInfo"] = @([configParams[@"wordInfo"] integerValue] ?: 1);
+  requestParams[@"hotwordId"] = configParams[@"hotwordId"] ?: @"";
+  _requestParams = requestParams;
+}
+
 // 快捷接口，可以通过URL快速识别
 RCT_EXPORT_METHOD(recognizeWithUrl : (NSDictionary *)configParams) {
-  NSLog(@"快捷接口参数: %@", configParams);
+  NSLog(@"快捷接口用户自定义参数: %@", configParams);
 
   NSString *url = configParams[@"url"];
   NSString *voiceFormat = configParams[@"voiceFormat"] ?: @"aac";
   NSString *engineModelType = configParams[@"engineModelType"] ?: @"16k_zh";
 
+  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  [self initializeRecognizer];
   // 指定语音数据url 语音数据格式 识别引擎
   // 支持的格式及引擎名称以API文档为准，见https://cloud.tencent.com/document/product/1093/35646
   [_recognizer recoginizeWithUrl:url
@@ -73,41 +102,32 @@ RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
   NSLog(@"完整接口参数: %@", configParams);
   NSString *url = configParams[@"url"];
   NSString *filePath = configParams[@"filePath"];
+
+  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  [self initializeRecognizer];
+
   // 获取一个已设置默认参数params
-  QCloudSentenceRecognizeParams *params =
+  QCloudSentenceRecognizeParams *requestParams =
       [_recognizer defaultRecognitionParams];
-  // 设置语音频数据格式，支持的格式以API文档为准，见https://cloud.tencent.com/document/product/1093/35646
-  params.voiceFormat = configParams[@"voiceFormat"] ?: @"wav";
+
   // 设置语音数据来源，见QCloudAudioSourceType定义
   if ([configParams[@"sourceType"] isEqual:@"url"]) {
-    params.url = url;
-    params.sourceType = QCloudAudioSourceTypeUrl;
+    requestParams.url = url;
+    requestParams.sourceType = QCloudAudioSourceTypeUrl;
   } else {
     NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
-    params.data = audioData;
-    params.sourceType = QCloudAudioSourceTypeAudioData;
+    requestParams.data = audioData;
+    requestParams.sourceType = QCloudAudioSourceTypeAudioData;
   }
-  // 设置识别引擎,支持的识别引擎以API文档为准，见https://cloud.tencent.com/document/product/1093/35646
-  params.engSerViceType = configParams[@"engineModelType"] ?: @"16k_zh";
 
-  // 以下为可选项
-  // 是否过滤脏词（目前支持中文普通话引擎）。0：不过滤脏词；1：过滤脏词；2：将脏词替换为
-  // * 。默认值为 0。
-  params.filterDirty = [configParams[@"filterDirty"] integerValue];
-  // 是否过语气词（目前支持中文普通话引擎）。0：不过滤语气词；1：部分过滤；2：严格过滤
-  // 。默认值为 0。
-  params.filterModal = [configParams[@"filterModal"] integerValue];
-  // 是否过滤标点符号（目前支持中文普通话引擎）。
-  // 0：不过滤，1：过滤句末标点，2：过滤所有标点。默认值为 0。
-  params.filterPunc = [configParams[@"filterPunc"] integerValue];
-  // 是否进行阿拉伯数字智能转换。0：不转换，直接输出中文数字，1：根据场景智能转换为阿拉伯数字。默认值为1。
-  params.convertNumMode = [configParams[@"convertNumMode"] integerValue] ?: 1;
-  // 是否显示词级别时间戳。0：不显示；1：显示，不包含标点时间戳，2：显示，包含标点时间戳。默认值为
-  // 0。
-  params.wordInfo = [configParams[@"wordInfo"] integerValue] ?: 1;
-  params.hotwordId = configParams[@"hotwordId"] ?: @"";
-
-  [_recognizer recognizeWithParams:params];
+  // 用KVC合并参数
+  for (NSString *key in _requestParams) {
+    id value = _requestParams[key];
+    if (value != nil) {
+      [requestParams setValue:value forKey:key];
+    }
+  }
+  [_recognizer recognizeWithParams:requestParams];
 }
 
 // 通过 SDK 内置录音器调用，开始录音
@@ -123,6 +143,9 @@ RCT_EXPORT_METHOD(startRecognizeWithRecorder : (NSDictionary *)configParams) {
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord
                                          error:nil];
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
+
+  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  [self initializeRecognizer];
   [_recognizer
       startRecognizeWithRecorder:
           engSerViceType]; // 16k_zh >
@@ -154,8 +177,7 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
       @"message" : error.userInfo[@"Message"]
     };
   } else {
-    resultBody[@"text"] = text;
-    resultBody[@"resultData"] = resultData;
+    resultBody[@"data"] = resultData[@"Response"];
   }
   NSLog(@"一句话识别回调结果: %@", resultBody);
   [self sendEventWithName:@"DidRecognize" body:resultBody];

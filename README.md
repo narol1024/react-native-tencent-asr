@@ -93,7 +93,7 @@ RealTimeRecognizerModuleEmitter.addListener(
 - DidError
 - DidStartRecord
 - DidStopRecord
-- DidUpdateVolumeDB
+- DidUpdateVolume
 - DidSaveAudioDataAsFile
 
 ### 一句话识别

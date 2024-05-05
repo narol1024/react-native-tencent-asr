@@ -3,6 +3,7 @@
 #import "RealTimeRecognizerModule.h"
 
 @implementation RealTimeRecognizerModule {
+  QCloudConfig *_requestParams;
   QCloudRealTimeRecognizer *_recognizer;
   bool _isRecording;
   bool _hasListeners;
@@ -19,9 +20,16 @@
 - (NSArray<NSString *> *)supportedEvents {
   return @[
     @"OnSliceRecognize", @"OnSegmentSuccessRecognize", @"DidFinish",
-    @"DidError", @"DidStartRecord", @"DidStopRecord", @"DidUpdateVolumeDB",
+    @"DidError", @"DidStartRecord", @"DidStopRecord", @"DidUpdateVolume",
     @"DidSaveAudioDataAsFile"
   ];
+}
+
+// 初始化Recognizer
+- (void)initializeRecognizer {
+  _recognizer =
+      [[QCloudRealTimeRecognizer alloc] initWithConfig:_requestParams];
+  _recognizer.delegate = self;
 }
 
 RCT_EXPORT_MODULE()
@@ -29,77 +37,62 @@ RCT_EXPORT_MODULE()
 // 初始化实时语音识别
 RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
 
-  NSLog(@"实时语音识别, 用户自定义参数: %@", configParams);
+  NSLog(@"实时语音识别模块", @"用户自定义参数: %@", configParams);
 
+  // 设置鉴权的参数
   NSString *appId = configParams[@"appId"];
   NSString *secretId = configParams[@"secretId"];
   NSString *secretKey = configParams[@"secretKey"];
   NSString *token = configParams[@"token"];
+  QCloudConfig *requestParams;
+  // 直接Token鉴权
+  if ([token isEqual:@""]) {
+    requestParams = [[QCloudConfig alloc] initWithAppId:appId
+                                               secretId:secretId
+                                              secretKey:secretKey
+                                              projectId:0];
 
-  // 1.创建 QCloudConfig 实例
-  QCloudConfig *config = [[QCloudConfig alloc] initWithAppId:appId
-                                                    secretId:secretId
-                                                   secretKey:secretKey
-                                                       token:token
-                                                   projectId:0];
-
+  } else {
+    requestParams = [[QCloudConfig alloc] initWithAppId:appId
+                                               secretId:secretId
+                                              secretKey:secretKey
+                                                  token:token
+                                              projectId:0];
+  }
   // 以下为可选配置参数
-  config.requestTimeout = [configParams[@"requestTimeout"] integerValue]
-                              ?: 10; // 请求超时时间（秒）
-  config.sliceTime = [configParams[@"sliceTime"] integerValue]
-                         ?: 40; // 语音分片时长默认40ms（无特殊需求不建议更改）
-  config.enableDetectVolume =
-      [configParams[@"enableDetectVolume"] boolValue] ?: YES; // 是否检测音量
-  config.endRecognizeWhenDetectSilence =
-      [configParams[@"endRecognizeWhenDetectSilence"] boolValue]
-          ?: YES; // 是否检测到静音停止识别
-  config.shouldSaveAsFile =
-      [configParams[@"shouldSaveAsFile"] boolValue]
-          ?: YES; // 仅限使用SDK内置录音器有效，是否保存录音文件到本地 默认关闭
-  config.saveFilePath = [NSTemporaryDirectory()
-      stringByAppendingPathComponent:
-          @"recordaudio.wav"]; // 开启shouldSaveAsFile后音频保存的路径，仅限使用SDK内置录音器有效,默认路径为[NSTemporaryDirectory()
-                               // stringByAppendingPathComponent:@"recordaudio.wav"]
+  requestParams.requestTimeout =
+      [configParams[@"requestTimeout"] integerValue] ?: 10;
+  requestParams.sliceTime = [configParams[@"sliceTime"] integerValue] ?: 40;
+  requestParams.enableDetectVolume =
+      [configParams[@"enableDetectVolume"] boolValue] ?: YES;
+  requestParams.endRecognizeWhenDetectSilence =
+      [configParams[@"endRecognizeWhenDetectSilence"] boolValue] ?: YES;
+  requestParams.shouldSaveAsFile =
+      [configParams[@"shouldSaveAsFile"] boolValue] ?: YES;
+  requestParams.saveFilePath = [NSTemporaryDirectory()
+      stringByAppendingPathComponent:@"recordaudio.wav"];
 
-  // 以下为API参数配置，参数描述见API文档：https://cloud.tencent.com/document/product/1093/48982
-  config.engineType = configParams[@"engineModelType"] ?: @"16k_zh";
-  ; // 设置引擎，不设置默认16k_zh
-  config.filterDirty = [configParams[@"filterDirty"]
-      integerValue]; // 是否过滤脏词，具体的取值见API文档的filter_dirty参数
-  config.filterModal = [configParams[@"filterModal"]
-      integerValue]; // 过滤语气词具体的取值见API文档的filter_modal参数
-  config.filterPunc = [configParams[@"filterPunc"]
-      integerValue]; // 过滤句末的句号具体的取值见API文档的filter_punc参数
-  config.convertNumMode =
-      [configParams[@"convertNumMode"] integerValue]
-          ?: 1; // 是否进行阿拉伯数字智能转换。具体的取值见API文档的convert_num_mode参数
-  // config.hotwordId = @""; //热词id。具体的取值见API文档的hotword_id参数
-  // config.customizationId = @"";  //自学习模型id,详情见API文档
-  // config.vadSilenceTime = -1;    //语音断句检测阈值,详情见API文档
-  config.needvad = [configParams[@"needvad"] integerValue]
-                       ?: 1; // 默认1 0：关闭 vad，1：开启 vad。
-                             // 如果语音分片长度超过60秒，用户需开启 vad。
-  config.wordInfo = [configParams[@"wordInfo"]
-      integerValue]; // 是否显示词级别时间戳。,详情见API文档
-  config.reinforceHotword = [configParams[@"reinforceHotword"]
-      integerValue]; // 热词增强功能 0: 关闭, 1: 开启 默认0
-  config.noiseThreshold = [configParams[@"noiseThreshold"]
-      integerValue]; // 噪音参数阈值，默认为0，取值范围：[-1,1]
-  config.maxSpeakTime =
-      [configParams[@"maxSpeakTime"] integerValue]
-          ?: 1000 *
-                 5; // 强制断句功能，取值范围
-                    // 5000-90000(单位:毫秒），默认值0(不开启)。
-                    // 在连续说话不间断情况下，该参数将实现强制断句（此时结果变成稳态，slice_type=2）。如：游戏解说场景，解说员持续不间断解说，无法断句的情况下，将此参数设置为10000，则将在每10秒收到
-                    // slice_type=2的回调。
+  requestParams.engineType = configParams[@"engineModelType"] ?: @"16k_zh";
+  requestParams.filterDirty = [configParams[@"filterDirty"] integerValue];
+  requestParams.filterModal = [configParams[@"filterModal"] integerValue];
+  requestParams.filterPunc = [configParams[@"filterPunc"] integerValue];
+  requestParams.convertNumMode =
+      [configParams[@"convertNumMode"] integerValue] ?: 1;
+  requestParams.hotwordId = configParams[@"hotwordId"] ?: @"";
+  requestParams.customizationId =
+      configParams[@"customizationId"] ?: @""; // 自学习模型id,详情见API文档
+  requestParams.vadSilenceTime =
+      [configParams[@"vadSilenceTime"] integerValue] ?: -1;
+  requestParams.needvad = [configParams[@"needvad"] integerValue] ?: 1;
+  requestParams.wordInfo = [configParams[@"wordInfo"] integerValue];
+  requestParams.reinforceHotword =
+      [configParams[@"reinforceHotword"] integerValue];
+  requestParams.noiseThreshold = [configParams[@"noiseThreshold"] integerValue];
+  requestParams.maxSpeakTime =
+      [configParams[@"maxSpeakTime"] integerValue] ?: 1000 * 5;
+  [requestParams setApiParam:@"noise_threshold" value:@(0.5)];
 
-  [config
-      setApiParam:@"noise_threshold"
-            value:
-                @(0.5)]; // 设置自定义请求参数,用于在请求中添加SDK尚未支持的参数
-
-  _recognizer = [[QCloudRealTimeRecognizer alloc] initWithConfig:config];
-  _recognizer.delegate = self;
+  _requestParams = requestParams;
 }
 
 // 开始实时语音识别
@@ -107,12 +100,14 @@ RCT_EXPORT_METHOD(startRealTimeRecognizer) {
   if (_isRecording) {
     return;
   }
-  // 使用内置录音器前需要先设置AVAudioSession状态为可录音的模式
   _isRecording = YES;
+  // 使用内置录音器前需要先设置AVAudioSession状态为可录音的模式
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord
                                          error:nil];
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
   NSLog(@"开始实时语音识别");
+  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  [self initializeRecognizer];
   [_recognizer start];
 }
 
@@ -158,31 +153,35 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
 - (void)realTimeRecognizerDidFinish:(QCloudRealTimeRecognizer *)recognizer
                              result:(NSString *)result {
   NSLog(@"识别任务总文本: %@", result);
-  [self sendEventWithName:@"DidFinish" body:@{@"result" : result}];
+  [self sendEventWithName:@"DidFinish" body:@{@"recognizedText" : result}];
 }
 
 // 识别任务失败回调
 - (void)realTimeRecognizerDidError:(QCloudRealTimeRecognizer *)recognizer
                             result:(QCloudRealTimeResult *)result {
-
   NSLog(@"识别任务失败回调: %@", [result jsonText]);
+  NSData *jsonData = [[result jsonText] dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *error;
+  id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                  options:kNilOptions
+                                                    error:&error];
 
-  [self sendEventWithName:@"DidError" body:[result jsonText]];
+  if (jsonObject && !error) {
+    [self sendEventWithName:@"DidError" body:jsonObject];
+  }
 }
 
 // 开始录音回调
 - (void)realTimeRecognizerDidStartRecord:(QCloudRealTimeRecognizer *)recognizer
                                    error:(NSError *_Nullable)error {
-  NSDictionary *body = error ? @{
-    @"error" : @{
+  NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
+  if (error) {
+    resultBody[@"error"] = @{
       @"code" : error.userInfo[@"Code"],
       @"message" : error.userInfo[@"Message"]
-    }
+    };
   }
-                             : nil;
-
-  NSLog(@"开始录音回调: %@", body);
-  [self sendEventWithName:@"DidStartRecord" body:body];
+  [self sendEventWithName:@"DidStartRecord" body:resultBody];
 }
 
 // 结束录音回调
@@ -195,7 +194,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
             (QCloudRealTimeRecognizer *)recognizer
                                      volume:(float)volume {
   NSLog(@"录音音量(单位为分贝)实时回调: %@", @(volume));
-  [self sendEventWithName:@"DidUpdateVolumeDB" body:@{@"volume" : @(volume)}];
+  [self sendEventWithName:@"DidUpdateVolume" body:@{@"volume" : @(volume)}];
 }
 
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。

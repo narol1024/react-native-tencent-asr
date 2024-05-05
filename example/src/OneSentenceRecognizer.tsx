@@ -1,35 +1,25 @@
 import React, { useEffect, useState } from 'react';
 
-import {
-  Button,
-  NativeEventEmitter,
-  NativeModules,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
 import { APP_ID, SECRET_ID, SECRET_KEY } from './constants';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const dirs = RNFetchBlob.fs.dirs;
 
-const OneSentenceRecognizerModuleEmitter = new NativeEventEmitter(
-  NativeModules.OneSentenceRecognizerModule
-);
-
 export function OneSentenceRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
   useEffect(() => {
-    OneSentenceRecognizerModuleEmitter.addListener('DidRecognize', (result) => {
+    OneSentenceRecognizerModule.addListener('DidRecognize', (result) => {
       if (result.error) {
         console.log('语音识别失败', result.error);
         return;
       }
       console.log('语音识别结果', result);
-      props.onRecognize(result.text);
+      props.onRecognize(result.data.result);
     });
     return () => {
-      OneSentenceRecognizerModuleEmitter.removeAllListeners('DidRecognize');
+      OneSentenceRecognizerModule.removeAllListeners('DidRecognize');
     };
   }, [props]);
 
@@ -89,8 +79,11 @@ export function OneSentenceRecognizerApp(props: any) {
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'column',
+    gap: 4,
     width: '100%',
     borderTopColor: '#dedede',
     borderTopWidth: 1,
+    marginBottom: 10,
   },
 });

@@ -13,6 +13,7 @@ export function FlashFileRecognizerApp(props: any) {
       appId: APP_ID,
       secretId: SECRET_ID,
       secretKey: SECRET_KEY,
+      voiceFormat: 'mp3',
     });
   }, []);
   return (
@@ -27,12 +28,12 @@ export function FlashFileRecognizerApp(props: any) {
               'GET',
               'https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202405012158499.mp3'
             );
-            const result = await FlashFileRecognizerModule.flashFileRecognizer({
+            const result = await FlashFileRecognizerModule.recognize({
               filePath: dirs.DocumentDir + '/202405012158499.mp3',
-              voiceFormat: 'mp3',
             });
-            props.onRecognize(result.text);
+            props.onRecognize(result.flashResult[0]?.text);
           } catch (error) {
+            console.log(error);
             props.onRecognize('识别错误');
           }
         }}
