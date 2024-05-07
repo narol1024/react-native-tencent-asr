@@ -19,9 +19,9 @@
 
 - (NSArray<NSString *> *)supportedEvents {
   return @[
-    @"OnSliceRecognize", @"OnSegmentSuccessRecognize", @"DidFinish",
-    @"DidError", @"DidStartRecord", @"DidStopRecord", @"DidUpdateVolume",
-    @"DidSaveAudioDataAsFile"
+    @"onSliceRecognize", @"onSegmentSuccessRecognize", @"didFinish",
+    @"didError", @"didStartRecord", @"didStopRecord", @"didUpdateVolume",
+    @"didSaveAudioDataAsFile"
   ];
 }
 
@@ -130,7 +130,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
     @"recognizedText" : [result recognizedText],
   };
   NSLog(@"语音包分片识别结果: %@", resultBody);
-  [self sendEventWithName:@"OnSliceRecognize" body:resultBody];
+  [self sendEventWithName:@"onSliceRecognize" body:resultBody];
 }
 
 // 持续返回的每句话的识别结果
@@ -146,14 +146,14 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
     @"recognizedText" : [result recognizedText],
   };
   NSLog(@"语音流的识别结果: %@", resultBody);
-  [self sendEventWithName:@"OnSegmentSuccessRecognize" body:resultBody];
+  [self sendEventWithName:@"onSegmentSuccessRecognize" body:resultBody];
 }
 
 // 识别任务总文本
 - (void)realTimeRecognizerDidFinish:(QCloudRealTimeRecognizer *)recognizer
                              result:(NSString *)result {
   NSLog(@"识别任务总文本: %@", result);
-  [self sendEventWithName:@"DidFinish" body:@{@"recognizedText" : result}];
+  [self sendEventWithName:@"didFinish" body:@{@"recognizedText" : result}];
 }
 
 // 识别任务失败回调
@@ -167,7 +167,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
                                                     error:&error];
 
   if (jsonObject && !error) {
-    [self sendEventWithName:@"DidError" body:jsonObject];
+    [self sendEventWithName:@"didError" body:jsonObject];
   }
 }
 
@@ -181,12 +181,12 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
       @"message" : error.userInfo[@"Message"]
     };
   }
-  [self sendEventWithName:@"DidStartRecord" body:resultBody];
+  [self sendEventWithName:@"didStartRecord" body:resultBody];
 }
 
 // 结束录音回调
 - (void)realTimeRecognizerDidStopRecord:(QCloudRealTimeRecognizer *)recognizer {
-  [self sendEventWithName:@"DidStopRecord" body:nil];
+  [self sendEventWithName:@"didStopRecord" body:nil];
 }
 
 // 录音音量(单位为分贝)实时回调,此回调计算音量的分贝值。
@@ -194,7 +194,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
             (QCloudRealTimeRecognizer *)recognizer
                                      volume:(float)volume {
   NSLog(@"录音音量(单位为分贝)实时回调: %@", @(volume));
-  [self sendEventWithName:@"DidUpdateVolume" body:@{@"volume" : @(volume)}];
+  [self sendEventWithName:@"didUpdateVolume" body:@{@"volume" : @(volume)}];
 }
 
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。
@@ -203,7 +203,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
                                    audioFilePath:(NSString *)audioFilePath {
   NSLog(@"录音文件: %@", audioFilePath);
 
-  [self sendEventWithName:@"DidSaveAudioDataAsFile"
+  [self sendEventWithName:@"didSaveAudioDataAsFile"
                      body:@{@"audioFilePath" : audioFilePath}];
 }
 

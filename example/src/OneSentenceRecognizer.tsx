@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 import { Button, StyleSheet, View } from 'react-native';
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
@@ -11,16 +11,15 @@ const dirs = RNFetchBlob.fs.dirs;
 export function OneSentenceRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
   useEffect(() => {
-    OneSentenceRecognizerModule.addListener('DidRecognize', (result) => {
-      if (result.error) {
-        console.log('语音识别失败', result.error);
-        props.onRecognize('识别失败');
-        return;
-      }
-      props.onRecognize(result.data.result);
+    OneSentenceRecognizerModule.addListener('didRecognize', (result) => {
+      props.onRecognize(result.result);
+    });
+    OneSentenceRecognizerModule.addListener('onError', (error) => {
+      console.error(error);
     });
     return () => {
-      OneSentenceRecognizerModule.removeAllListeners('DidRecognize');
+      OneSentenceRecognizerModule.removeAllListeners('didRecognize');
+      OneSentenceRecognizerModule.removeAllListeners('onError');
     };
   }, [props]);
 
@@ -30,6 +29,18 @@ export function OneSentenceRecognizerApp(props: any) {
       secretId: SECRET_ID,
       secretKey: SECRET_KEY,
     });
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.request('android.permission.RECORD_AUDIO').then(
+        (granted) => {
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('已授权录音');
+          }
+        }
+      );
+    }
   }, []);
 
   return (
@@ -65,17 +76,12 @@ export function OneSentenceRecognizerApp(props: any) {
       <Button
         title={isRecording ? '停止录音' : '一句话识别(内置录音器)'}
         onPress={async () => {
-          const granted = await PermissionsAndroid.request(
-            'android.permission.RECORD_AUDIO'
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            if (isRecording) {
-              OneSentenceRecognizerModule.stopRecognizeWithRecorder();
-              setIsRecording(false);
-            } else {
-              OneSentenceRecognizerModule.recognizeWithRecorder();
-              setIsRecording(true);
-            }
+          if (isRecording) {
+            OneSentenceRecognizerModule.stopRecognizeWithRecorder();
+            setIsRecording(false);
+          } else {
+            OneSentenceRecognizerModule.recognizeWithRecorder();
+            setIsRecording(true);
           }
         }}
       />

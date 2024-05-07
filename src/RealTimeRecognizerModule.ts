@@ -11,10 +11,9 @@ const NativeModulesEmitter = new NativeEventEmitter(
   NativeModules.RealTimeRecognizerModule
 );
 
-//   DidSaveAudioDataAsFile
 function addListener(
   // 每个语音包分片识别结果
-  eventName: 'OnSliceRecognize',
+  eventName: 'onSliceRecognize',
   eventCallback: (result: {
     code: number;
     message: string;
@@ -25,7 +24,7 @@ function addListener(
 ): EmitterSubscription;
 // 语音流的识别结果,一次识别中可以包括多句话，这里持续返回的每句话的识别结果
 function addListener(
-  eventName: 'OnSegmentSuccessRecognize',
+  eventName: 'onSegmentSuccessRecognize',
   eventCallback: (result: {
     code: number;
     message: string;
@@ -36,32 +35,32 @@ function addListener(
 ): EmitterSubscription;
 // 一次识别任务成功完成后的成功回调
 function addListener(
-  eventName: 'DidFinish',
+  eventName: 'didFinish',
   eventCallback: (result: { recognizedText: string }) => void
 ): EmitterSubscription;
 // 一次识别任务失败回调
 function addListener(
-  eventName: 'DidError',
+  eventName: 'didError',
   eventCallback: (result: RecognizerError) => void
 ): EmitterSubscription;
 // 开始录音回调
 function addListener(
-  eventName: 'DidStartRecord',
+  eventName: 'didStartRecord',
   eventCallback: (result: { error: RecognizerError }) => void
 ): EmitterSubscription;
 // 结束录音回调
 function addListener(
-  eventName: 'DidStopRecord',
+  eventName: 'didStopRecord',
   eventCallback: () => void
 ): EmitterSubscription;
 // 录音音量(单位为分贝)实时回调,此回调计算音量的分贝值
 function addListener(
-  eventName: 'DidUpdateVolume',
+  eventName: 'didUpdateVolume',
   eventCallback: (result: { volume: number }) => void
 ): EmitterSubscription;
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。
 function addListener(
-  eventName: 'DidSaveAudioDataAsFile',
+  eventName: 'didSaveAudioDataAsFile',
   eventCallback: (result: { audioFilePath: string }) => void
 ): EmitterSubscription;
 // 其它事件
@@ -93,13 +92,13 @@ export const RealTimeRecognizerModule = {
   // 移除事件
   removeAllListeners(
     eventName:
-      | 'OnSliceRecognize'
-      | 'OnSegmentSuccessRecognize'
-      | 'DidError'
-      | 'DidStartRecord'
-      | 'DidStopRecord'
-      | 'DidUpdateVolumeDB'
-      | 'DidSaveAudioDataAsFile'
+      | 'onSliceRecognize'
+      | 'onSegmentSuccessRecognize'
+      | 'didError'
+      | 'didStartRecord'
+      | 'didStopRecord'
+      | 'didUpdateVolumeDB'
+      | 'didSaveAudioDataAsFile'
   ) {
     return NativeModulesEmitter.removeAllListeners(eventName);
   },

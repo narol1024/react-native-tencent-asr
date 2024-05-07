@@ -3,21 +3,31 @@
 package com.tencentasr.module;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.QCloudFlashRecognizer;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.QCloudFlashRecognizerListener;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.param.QCloudFlashRecognitionParams;
 import com.tencentasr.util.ConfigParameterUtils;
+import com.tencentasr.util.ErrorTypes;
+import com.tencentasr.util.ReactNativeJsonUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import org.json.JSONObject;
+
+// 本地模块错误
+class FlashFileRecognizerModuleErrorTypes extends ErrorTypes {}
 
 public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
     implements QCloudFlashRecognizerListener {
-  public static final String NAME = "FlashFileRecognizerModule";
+  public static final String ModuleName = "FlashFileRecognizerModule";
 
   private String _appId;
   private String _secretId;
@@ -25,16 +35,30 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
   private String _token;
   private Promise _promise;
   private QCloudFlashRecognitionParams _requestParams;
+  private ReactContext _reactContext;
   private QCloudFlashRecognizer _recognizer;
 
   public FlashFileRecognizerModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    _reactContext = reactContext;
   }
 
+  private void sendEvent(ReactContext reactContext, String eventName,
+                         WritableMap params) {
+    reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(eventName, params);
+  }
+
+  @ReactMethod
+  public void addListener(String eventName) {}
+
+  @ReactMethod
+  public void removeListeners(Integer count) {}
+
   @Override
-  @NonNull
   public String getName() {
-    return NAME;
+    return ModuleName;
   }
 
   // 初始化Recognizer
@@ -46,10 +70,19 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
     _recognizer.setCallback(this);
   }
 
+  // 统一处理错误事件
+  private void sendErrorEvent(String errorCode, String errorMessage) {
+    WritableMap errorMap = Arguments.createMap();
+    errorMap.putString("code", errorCode);
+    errorMap.putString("message", errorMessage);
+    Log.i(ModuleName, "errorCoe: " + errorCode + "errorMsg: " + errorMessage);
+    sendEvent(_reactContext, "onError", errorMap);
+  }
+
   @ReactMethod
   public void configure(final ReadableMap configParams) {
-    Log.d("录音文件识别极速版", "配置AppID、SecretID、SecretKey, Token参数: " +
-                                    configParams.toString());
+    Log.i(ModuleName,
+          "调用configure方法, 调用参数: " + configParams.toString());
 
     _appId = configParams.getString("appId");
     _secretId = configParams.getString("secretId");
@@ -85,42 +118,67 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
 
   @ReactMethod
   public void recognize(ReadableMap configParams, Promise promise) {
+    Log.i(ModuleName,
+          "调用recognize方法, 调用参数: " + configParams.toString());
+
     String audioFilePath = configParams.getString("audioFilePath");
 
     if (audioFilePath == null) {
+      sendErrorEvent(FlashFileRecognizerModuleErrorTypes.PARAMETER_MISSING,
+                     "audioFilePath参数缺失");
       promise.reject(new RuntimeException("audioFilePath参数缺失"));
       return;
     }
 
     File audioFile = new File(audioFilePath);
     if (!audioFile.exists()) {
+      sendErrorEvent(FlashFileRecognizerModuleErrorTypes.FILE_DOES_NOT_EXIST,
+                     "音频文件不存在");
       promise.reject(new RuntimeException("音频文件不存在"));
       return;
     }
     try {
       FileInputStream fs = new FileInputStream(audioFile);
       byte[] audioData = new byte[fs.available()];
-      fs.read(audioData);
-
-      _promise = promise;
-      initializeRecognizer();
-      _requestParams.setData(audioData);
-      _recognizer.recognize(_requestParams);
+      int _ignored = fs.read(audioData);
+      try {
+        _promise = promise;
+        initializeRecognizer();
+        _requestParams.setData(audioData);
+        _recognizer.recognize(_requestParams);
+      } catch (Exception e) {
+        sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
+                       e.getMessage());
+        promise.reject(new RuntimeException(e.getMessage()));
+      }
     } catch (Exception e) {
-      promise.reject("IOException",
-                     "An error occurred while reading the audio file.", e);
+      sendErrorEvent(FlashFileRecognizerModuleErrorTypes.FILE_READ_FAILED,
+                     "读取音频文件失败");
+      promise.reject(new RuntimeException("读取音频文件失败"));
     }
   }
 
-  // 录音文件识别结果回调 ，详见api文档
-  // @see https://cloud.tencent.com/document/product/1093/52097
+  // 录音文件识别结果回调
   public void recognizeResult(QCloudFlashRecognizer recognizer, String result,
                               Exception exception) {
     if (exception == null) {
-      // TODO: 应该使用WritableMap
-      _promise.resolve(result);
+      try {
+        JSONObject resultJson = new JSONObject(result);
+        if (resultJson.getInt("code") == 0) {
+          _promise.resolve(ReactNativeJsonUtils.convertJsonToMap(resultJson));
+        } else {
+          _promise.reject(
+              new RuntimeException(resultJson.getString("message")));
+        }
+      } catch (Exception e) {
+        sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
+                       e.getMessage());
+      }
+
     } else {
-      _promise.reject(exception.getLocalizedMessage(), "Recognition failed");
+      sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
+                     exception.getLocalizedMessage());
+      _promise.reject(new RuntimeException(exception.getLocalizedMessage()));
     }
   }
 }

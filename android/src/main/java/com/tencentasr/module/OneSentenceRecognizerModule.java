@@ -1,13 +1,7 @@
 // @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
-
 package com.tencentasr.module;
-import android.Manifest;
 import android.app.Activity;
-import android.os.Build;
 import android.util.Log;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
@@ -23,23 +17,34 @@ import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudAudioFrequence;
 import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudSourceType;
 import com.tencent.cloud.qcloudasrsdk.onesentence.network.QCloudOneSentenceRecognitionParams;
 import com.tencentasr.util.ConfigParameterUtils;
+import com.tencentasr.util.ErrorTypes;
+import com.tencentasr.util.ReactNativeJsonUtils;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.LinkedList;
-import java.util.List;
-import org.json.JSONArray;
 import org.json.JSONObject;
+
+// 本地模块错误
+class OneSentenceRecognizerModuleErrorTypes extends ErrorTypes {
+  // 调用内置录音器失败
+  public static final String RECOGNIZE_WITH_RECORDER_FAILED =
+      "RECOGNIZE_WITH_RECORDER_FAILED";
+  // 调用recognizeWithUrl失败
+  public static final String RECOGNIZE_WITH_URL_FAILED =
+      "RECOGNIZE_WITH_URL_FAILED";
+  // 调用recognizeWithParams失败
+  public static final String RECOGNIZE_WITH_PARAMS_FAILED =
+      "RECOGNIZE_WITH_PARAMS_FAILED";
+}
 
 public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
     implements QCloudOneSentenceRecognizerListener {
-  public static final String NAME = "OneSentenceRecognizerModule";
+  public static final String ModuleName = "OneSentenceRecognizerModule";
   private String _appId;
   private String _secretId;
   private String _secretKey;
   private String _token;
   private QCloudOneSentenceRecognizer _recognizer;
   private ReactContext _reactContext;
-  private boolean _isRecording = false;
   private QCloudOneSentenceRecognitionParams _requestParams;
 
   public OneSentenceRecognizerModule(ReactApplicationContext reactContext) {
@@ -60,15 +65,13 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
   public void removeListeners(Integer count) {}
 
   @Override
-  @NonNull
   public String getName() {
-    return NAME;
+    return ModuleName;
   }
 
   // 初始化Recognizer
   private void initializeRecognizer() {
     Activity currentActivity = getCurrentActivity();
-
     _recognizer =
         _token != null
             ? new QCloudOneSentenceRecognizer(currentActivity, _appId,
@@ -78,10 +81,19 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
     _recognizer.setCallback(this);
   }
 
+  // 统一处理错误事件
+  private void sendErrorEvent(String errorCode, String errorMessage) {
+    WritableMap errorMap = Arguments.createMap();
+    errorMap.putString("code", errorCode);
+    errorMap.putString("message", errorMessage);
+    Log.i(ModuleName, "errorCoe: " + errorCode + "errorMsg: " + errorMessage);
+    sendEvent(_reactContext, "onError", errorMap);
+  }
+
   @ReactMethod
   public void configure(final ReadableMap configParams) {
-    Log.d("一句话识别模块", "配置AppID、SecretID、SecretKey, Token参数: " +
-                                configParams.toString());
+    Log.i(ModuleName,
+          "调用configure方法, 调用参数: " + configParams.toString());
 
     _appId = configParams.getString("appId");
     _secretId = configParams.getString("secretId");
@@ -105,9 +117,11 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
         configParams, "engineModelType", "16k_zh"));
   }
 
+  // 通过语音url进行一句话识别的快捷入口
   @ReactMethod
   public void recognizeWithUrl(ReadableMap configParams) {
-    Log.d("一句话识别模块:", configParams.toString());
+    Log.i(ModuleName,
+          "调用recognizeWithUrl方法, 调用参数: " + configParams.toString());
     try {
       String url = configParams.getString("url");
       _requestParams.setSourceType(
@@ -117,95 +131,98 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
       initializeRecognizer();
       _recognizer.recognize(_requestParams);
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("exception msg" + e.getMessage());
+      sendErrorEvent(
+          OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_WITH_URL_FAILED,
+          e.getMessage());
     }
   }
 
   @ReactMethod
   public void recognizeWithParams(ReadableMap configParams) {
-    Log.d("一句话识别模块, 完整参数:", configParams.toString());
+    Log.i(ModuleName,
+          "调用recognizeWithParams方法, 调用参数: " + configParams.toString());
     String audioFilePath = configParams.getString("audioFilePath");
 
     if (audioFilePath == null) {
-      System.out.println("audioFilePath参数缺失");
+      sendErrorEvent(OneSentenceRecognizerModuleErrorTypes.PARAMETER_MISSING,
+                     "audioFilePath参数缺失");
       return;
     }
 
     File audioFile = new File(audioFilePath);
     if (!audioFile.exists()) {
-      System.out.println("音频文件不存在");
+      sendErrorEvent(OneSentenceRecognizerModuleErrorTypes.FILE_DOES_NOT_EXIST,
+                     "音频文件不存在");
       return;
     }
 
     try {
       FileInputStream fs = new FileInputStream(audioFile);
       byte[] audioData = new byte[fs.available()];
-      fs.read(audioData);
+      int _ignored = fs.read(audioData);
       _requestParams.setSourceType(QCloudSourceType.QCloudSourceTypeData);
       _requestParams.setData(audioData);
-      initializeRecognizer();
-      _recognizer.recognize(_requestParams);
+      try {
+        initializeRecognizer();
+        _recognizer.recognize(_requestParams);
+      } catch (Exception e) {
+        sendErrorEvent(
+            OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_WITH_PARAMS_FAILED,
+            e.getMessage());
+      }
     } catch (Exception e) {
-      System.out.println("An error occurred while reading the audio file.");
+      sendErrorEvent(OneSentenceRecognizerModuleErrorTypes.FILE_READ_FAILED,
+                     "读取音频文件失败");
     }
   }
 
+  // 调用该方法前, 确认已经授权录音权限,
+  // 在Virtual Devices下, 确认Microphone设置开启
   @ReactMethod
-  public void recognizeWithRecorder(ReadableMap configParams) {
+  public void recognizeWithRecorder() {
+    Log.i(ModuleName, "调用recognizeWithRecorder方法");
     try {
-      Log.d("一句话识别模块", "recognizeWithRecorder");
       initializeRecognizer();
       _recognizer.recognizeWithRecorder();
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("exception msg" + e.getMessage());
+      sendErrorEvent(
+          OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_WITH_RECORDER_FAILED,
+          e.getMessage());
     }
   }
 
   @ReactMethod
   public void stopRecognizeWithRecorder() {
-    try {
-      _recognizer.stopRecognizeWithRecorder();
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("exception msg" + e.getMessage());
-    }
+    _recognizer.stopRecognizeWithRecorder();
   }
 
   // 一句话识别结果回调
   public void recognizeResult(QCloudOneSentenceRecognizer recognizer,
                               String result, Exception exception) {
-
-    try {
-      if (exception == null) {
-        JSONObject jsonObject = new JSONObject(result);
-        JSONObject response = jsonObject.getJSONObject("Response");
+    if (exception == null) {
+      try {
+        JSONObject resultJson = new JSONObject(result);
+        JSONObject response = resultJson.getJSONObject("Response");
         WritableMap resultBody = Arguments.createMap();
         if (response.has("Error")) {
-          WritableMap errorMap = Arguments.createMap();
           JSONObject errorObject = response.getJSONObject("Error");
-          errorMap.putString("code", errorObject.getString("Code"));
-          errorMap.putString("message", errorObject.getString("Message"));
-          resultBody.putMap("error", errorMap);
+          sendErrorEvent(errorObject.getString("Code"),
+                         errorObject.getString("Message"));
         } else {
-          resultBody.putString("data", response.toString());
+          sendEvent(_reactContext, "didRecognize",
+                    ReactNativeJsonUtils.convertJsonToMap(response));
         }
-        sendEvent(_reactContext, "DidRecognize", resultBody);
-      } else {
-        WritableMap errorMap = Arguments.createMap();
-        WritableMap resultBody = Arguments.createMap();
-        errorMap.putString("message", exception.getMessage());
-        resultBody.putMap("error", errorMap);
-        sendEvent(_reactContext, "DidRecognize", resultBody);
+      } catch (Exception e) {
+        sendErrorEvent(OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
+                       e.getMessage());
       }
 
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("exception msg" + e.getMessage());
+    } else {
+      sendErrorEvent(OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
+                     exception.getMessage());
     }
   }
 
-  public void didStartRecord() { Log.d("一句话识别模块", "didStartRecord"); }
+  public void didStartRecord() { Log.i("一句话识别模块", "didStartRecord"); }
   public void didStopRecord() { Log.d("一句话识别模块", "didStopRecord"); }
 }

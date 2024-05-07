@@ -9,17 +9,14 @@ export function RealTimeRecognizerApp(props: any) {
 
   useEffect(() => {
     RealTimeRecognizerModule.addListener(
-      'OnSegmentSuccessRecognize',
+      'onSegmentSuccessRecognize',
       (result) => {
         console.log('语音的识别结果', result);
         props.onRecognize(result.recognizedText);
       }
     );
-    RealTimeRecognizerModule.addListener('DidSaveAudioDataAsFile', (result) => {
-      console.log('DidSaveAudioDataAsFile', result);
-    });
     return () => {
-      RealTimeRecognizerModule.removeAllListeners('OnSegmentSuccessRecognize');
+      RealTimeRecognizerModule.removeAllListeners('onSegmentSuccessRecognize');
     };
   }, [props]);
 

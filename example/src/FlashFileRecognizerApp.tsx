@@ -9,6 +9,15 @@ const dirs = RNFetchBlob.fs.dirs;
 
 export function FlashFileRecognizerApp(props: any) {
   useEffect(() => {
+    // FlashFileRecognizerModule.addListener('onError', (error) => {
+    //   console.error(error);
+    // });
+    // return () => {
+    //   FlashFileRecognizerModule.removeAllListeners('onError');
+    // };
+  }, [props]);
+
+  useEffect(() => {
     FlashFileRecognizerModule.configure({
       appId: APP_ID,
       secretId: SECRET_ID,
