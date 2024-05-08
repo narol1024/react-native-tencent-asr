@@ -14,10 +14,7 @@ export function OneSentenceRecognizerApp(props: any) {
       props.onRecognize(result.result);
     });
     OneSentenceRecognizerModule.addListener('onError', (error) => {
-      console.error(error);
-    });
-    OneSentenceRecognizerModule.addListener('onUpdateVolume', (result) => {
-      console.log('>>', result);
+      console.error('发生错误: ', error);
     });
     return () => {
       OneSentenceRecognizerModule.removeAllListeners('onRecognize');
@@ -70,7 +67,7 @@ export function OneSentenceRecognizerApp(props: any) {
             OneSentenceRecognizerModule.stopRecognizeWithRecorder();
             setIsRecording(false);
           } else {
-            OneSentenceRecognizerModule.recognizeWithRecorder();
+            OneSentenceRecognizerModule.startRecognizeWithRecorder();
             setIsRecording(true);
           }
         }}
@@ -84,7 +81,5 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 4,
     width: '100%',
-    borderTopColor: '#dedede',
-    borderTopWidth: 1,
   },
 });

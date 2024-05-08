@@ -44,8 +44,9 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
   private String _secretId;
   private String _secretKey;
   private String _token;
+  private Boolean _isRecording = false;
   private QCloudOneSentenceRecognizer _recognizer;
-  private ReactContext _reactContext;
+  private final ReactContext _reactContext;
   private QCloudOneSentenceRecognitionParams _requestParams;
 
   public OneSentenceRecognizerModule(ReactApplicationContext reactContext) {
@@ -182,8 +183,11 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
   // 调用该方法前, 确认已经授权录音权限,
   // 在Virtual Devices下, 确认Microphone设置开启
   @ReactMethod
-  public void recognizeWithRecorder() {
-    Log.i(ModuleName, "调用recognizeWithRecorder方法");
+  public void startRecognizeWithRecorder() {
+    Log.i(ModuleName, "调用startRecognizeWithRecorder方法");
+    if (_isRecording) {
+      return;
+    }
     try {
       initializeRecognizer();
       _recognizer.recognizeWithRecorder();
@@ -191,17 +195,22 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
       sendErrorEvent(
           OneSentenceRecognizerModuleErrorTypes.RECOGNIZE_WITH_RECORDER_FAILED,
           e.getMessage());
+    } finally {
+      _isRecording = true;
     }
   }
 
   @ReactMethod
   public void stopRecognizeWithRecorder() {
+    Log.i(ModuleName, "调用stopRecognizeWithRecorder方法");
+    _isRecording = false;
     _recognizer.stopRecognizeWithRecorder();
   }
 
-  // 一句话识别结果回调
+  // 识别结果回调
   public void recognizeResult(QCloudOneSentenceRecognizer recognizer,
                               String result, Exception exception) {
+    Log.i(ModuleName, "识别结果回调");
     if (exception == null) {
       try {
         JSONObject resultJson = new JSONObject(result);
@@ -225,18 +234,22 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
     }
   }
 
+  // 开始录音回调
   public void didStartRecord() {
-    Log.i(ModuleName, "回调didStartRecord");
+    Log.i(ModuleName, "开始录音回调");
     sendEvent(_reactContext, "onStartRecord", Arguments.createMap());
   }
 
+  // 结束录音回调
   public void didStopRecord() {
-    Log.i(ModuleName, "回调didStopRecord");
+    // TODO: Android这里有没有文件？
+    Log.i(ModuleName, "结束录音回调");
     sendEvent(_reactContext, "onStopRecord", Arguments.createMap());
   }
 
+  // 音量更新回调
   public void didUpdateVolume(int volumn) {
-    Log.i(ModuleName, "回调didUpdateVolume");
+    Log.i(ModuleName, "音量更新回调");
     WritableMap resultBody = Arguments.createMap();
     resultBody.putInt("volumn", volumn);
     sendEvent(_reactContext, "onUpdateVolume", resultBody);

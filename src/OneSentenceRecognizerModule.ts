@@ -14,7 +14,7 @@ const nativeEventEmitter = new NativeEventEmitter(
 );
 
 function addListener(
-  // 识别回调
+  // 识别结果回调
   eventName: 'onRecognize',
   eventCallback: (result: {
     audioDuration: number;
@@ -78,8 +78,8 @@ export const OneSentenceRecognizerModule = {
     NativeModules.OneSentenceRecognizerModule.recognizeWithParams(params);
   },
   // 一句话识别(内置录音器), 开始录音, 安卓确保先请求录音权限
-  async recognizeWithRecorder() {
-    NativeModules.OneSentenceRecognizerModule.recognizeWithRecorder();
+  startRecognizeWithRecorder() {
+    NativeModules.OneSentenceRecognizerModule.startRecognizeWithRecorder();
   },
   //  一句话识别(内置录音器), 停止录音
   stopRecognizeWithRecorder() {

@@ -6,20 +6,20 @@ import { APP_ID, SECRET_ID, SECRET_KEY } from './constants';
 
 export function RealTimeRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
-
   useEffect(() => {
     RealTimeRecognizerModule.addListener(
-      'onSliceSuccessRecognize',
+      'onSegmentSuccessRecognize',
       (result) => {
         console.log(result);
         props.onRecognize(result.text);
       }
     );
-    RealTimeRecognizerModule.addListener('onError', (err) => {
-      console.log(err);
+    RealTimeRecognizerModule.addListener('onError', (error) => {
+      console.error('发生错误: ', error);
     });
     return () => {
       RealTimeRecognizerModule.removeAllListeners('onSegmentSuccessRecognize');
+      RealTimeRecognizerModule.removeAllListeners('onError');
     };
   }, [props]);
 
@@ -52,7 +52,5 @@ export function RealTimeRecognizerApp(props: any) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderTopColor: '#dedede',
-    borderTopWidth: 1,
   },
 });

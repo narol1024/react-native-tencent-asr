@@ -35,7 +35,7 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
   private String _token;
   private Promise _promise;
   private QCloudFlashRecognitionParams _requestParams;
-  private ReactContext _reactContext;
+  private final ReactContext _reactContext;
   private QCloudFlashRecognizer _recognizer;
 
   public FlashFileRecognizerModule(ReactApplicationContext reactContext) {

@@ -36,7 +36,7 @@ function addListener(
 // 一次识别任务最终的结果
 function addListener(
   eventName: 'onSuccessRecognize',
-  eventCallback: (result: { recognizedText: string }) => void
+  eventCallback: (result: { text: string }) => void
 ): EmitterSubscription;
 // 一次识别任务失败回调
 function addListener(
@@ -53,17 +53,22 @@ function addListener(
   eventName: 'onStopRecord',
   eventCallback: () => void
 ): EmitterSubscription;
-// 录音音量(单位为分贝)实时回调,此回调计算音量的分贝值
+// 录音音量(单位为分贝)实时回调
 function addListener(
   eventName: 'onUpdateVolume',
   eventCallback: (result: { volume: number }) => void
+): EmitterSubscription;
+// 静音检测超时回调
+function addListener(
+  eventName: 'onSilentDetectTimeOut',
+  eventCallback: () => void
 ): EmitterSubscription;
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。
 function addListener(
   eventName: 'onSaveAudioDataAsFile',
   eventCallback: (result: { audioFilePath: string }) => void
 ): EmitterSubscription;
-// 各种处理错误事件
+// 通用的错误事件
 function addListener(
   eventName: 'onError',
   eventCallback: (err: { code: string; message: string }) => void

@@ -14,6 +14,8 @@
   bool _hasListeners;
 }
 
+static NSString *_moduleName = @"OneSentenceRecognizerModule";
+
 - (void)startObserving {
   _hasListeners = YES;
 }
@@ -54,8 +56,7 @@ RCT_EXPORT_MODULE()
 
 // 配置AppID、SecretID、SecretKey, Token
 RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
-  NSLog(@"一句话识别模块", @"配置AppID、SecretID、SecretKey, Token参数: %@",
-        configParams);
+  NSLog(@"%@, 调用configure方法, 调用参数: %@", _moduleName, configParams);
 
   // 设置鉴权的参数
   _appId = configParams[@"appId"];
@@ -83,7 +84,8 @@ RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
 
 // 快捷接口，可以通过URL快速识别
 RCT_EXPORT_METHOD(recognizeWithUrl : (NSDictionary *)configParams) {
-  NSLog(@"快捷接口用户自定义参数: %@", configParams);
+  NSLog(@"%@, 调用recognizeWithUrl方法, 调用参数: %@", _moduleName,
+        configParams);
 
   NSString *url = configParams[@"url"];
   NSString *voiceFormat = configParams[@"voiceFormat"] ?: @"aac";
@@ -100,7 +102,8 @@ RCT_EXPORT_METHOD(recognizeWithUrl : (NSDictionary *)configParams) {
 
 // 完整接口，可设置更多参数
 RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
-  NSLog(@"完整接口参数: %@", configParams);
+  NSLog(@"%@, 调用recognizeWithParams方法, 调用参数: %@", _moduleName,
+        configParams);
   NSString *url = configParams[@"url"];
   NSString *audioFilePath = configParams[@"audioFilePath"];
 
@@ -132,13 +135,11 @@ RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
 }
 
 // 通过 SDK 内置录音器调用，开始录音
-RCT_EXPORT_METHOD(recognizeWithRecorder : (NSDictionary *)configParams) {
+RCT_EXPORT_METHOD(startRecognizeWithRecorder) {
+  NSLog(@"%@, 调用startRecognizeWithRecorder方法", _moduleName);
   if (_isRecording) {
     return;
   }
-  NSLog(@"通过 SDK 内置录音器调用，用户参数: %@", configParams);
-  NSString *engSerViceType = configParams[@"engineModelType"] ?: nil;
-
   // 使用内置录音器前需要先设置AVAudioSession状态为可录音的模式
   _isRecording = YES;
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord
@@ -147,90 +148,80 @@ RCT_EXPORT_METHOD(recognizeWithRecorder : (NSDictionary *)configParams) {
 
   // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
-  [_recognizer
-      startRecognizeWithRecorder:
-          engSerViceType]; // 16k_zh >
-                           // 识别引擎,传nil将默认使用16k_zh,支持的识别引擎以API文档为准，见https://cloud.tencent.com/document/product/1093/35646
+  [_recognizer startRecognizeWithRecorder:_requestParams[@"engineModelType"]];
 }
 
 // 停止录音并上传录音数据开始识别
 RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
-  NSLog(@"通过 SDK 内置录音器调用，停止录音并上传录音数据开始识别");
+  NSLog(@"%@, 调用stopRecognizeWithRecorder方法", _moduleName);
   _isRecording = NO;
   [_recognizer stopRecognizeWithRecorder];
 }
 
-/**
- * 一句话识别回调delegate
- * @param result 识别结果文本，error=nil此字段才存在值
- * @param error 错误信息，详细错误信息见error.domain和error.userInfo字段
- * @param rawData 识别原始数据
- */
+// 一句话识别回调
 - (void)oneSentenceRecognizerDidRecognize:(QCloudSentenceRecognizer *)recognizer
                                      text:(nullable NSString *)text
                                     error:(nullable NSError *)error
                                resultData:(nullable NSDictionary *)resultData {
-  NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
-
-  if (error) {
-    resultBody[@"error"] = @{
-      @"code" : error.userInfo[@"Code"],
-      @"message" : error.userInfo[@"Message"]
-    };
+  NSLog(@"%@, 识别结果回调", _moduleName);
+  if (error != nil) {
+    NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
+    resultBody[@"code"] = error.userInfo[@"Code"];
+    resultBody[@"message"] = error.userInfo[@"Message"];
+    [self sendEventWithName:@"OneSentenceRecognizerModule.onError"
+                       body:resultBody];
   } else {
-    resultBody[@"data"] = resultData[@"Response"];
+    NSMutableDictionary *resultBody = resultData[@"Response"];
+    [self sendEventWithName:@"OneSentenceRecognizerModule.onRecognize"
+                       body:resultBody];
   }
-  NSLog(@"一句话识别回调结果: %@", resultBody);
-  [self sendEventWithName:@"onRecognize" body:resultBody];
 }
 
-/**
- * 开始录音回调
- */
+// 开始录音回调
 - (void)oneSentenceRecognizerDidStartRecord:
             (QCloudSentenceRecognizer *)recognizer
                                       error:(nullable NSError *)error {
-  NSDictionary *body = error ? @{
-    @"code" : error.userInfo[@"Code"],
-    @"message" : error.userInfo[@"Message"]
+  NSLog(@"%@, 开始录音回调", _moduleName);
+  if (error != nil) {
+    NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
+    resultBody[@"code"] = error.userInfo[@"Code"];
+    resultBody[@"message"] = error.userInfo[@"Message"];
+    [self sendEventWithName:@"OneSentenceRecognizerModule.onError"
+                       body:resultBody];
+  } else {
+    [self sendEventWithName:@"OneSentenceRecognizerModule.onStartRecord"
+                       body:nil];
   }
-                             : nil;
-
-  NSLog(@"开始录音回调: %@", body);
-  [self sendEventWithName:@"didStartRecord" body:body];
 }
-/**
- * 结束录音回调, SDK通过此方法回调后内部开始上报语音数据进行识别
- */
+// 结束录音回调
 - (void)oneSentenceRecognizerDidEndRecord:(QCloudSentenceRecognizer *)recognizer
                             audioFilePath:(nonnull NSString *)audioFilePath {
+  NSLog(@"%@, 结束录音回调, 音频文件路径:%@", _moduleName, audioFilePath);
   NSDictionary *resultBody = @{
     @"audioFilePath" : audioFilePath,
   };
   NSLog(@"结束录音回调: %@", resultBody);
-  [self sendEventWithName:@"onStopRecord" body:resultBody];
+  [self sendEventWithName:@"OneSentenceRecognizerModule.onStopRecord"
+                     body:resultBody];
 }
 
-/**
- * 录音音量实时回调用
- * @param recognizer 识别器实例
- * @param volume 声音音量，取值范围（-40-0）
- */
+// 录音音量实时回调
 - (void)oneSentenceRecognizerDidUpdateVolume:
             (QCloudSentenceRecognizer *)recognizer
                                       volume:(float)volume {
+  NSLog(@"%@, 录音音量实时回调, 音量:%@", _moduleName, @(volume));
   NSDictionary *resultBody = @{
     @"volume" : @(volume),
   };
-  NSLog(@"录音音量实时回调: %@", resultBody);
-  [self sendEventWithName:@"onUpdateVolume" body:resultBody];
+  [self sendEventWithName:@"OneSentenceRecognizerModule.onUpdateVolume"
+                     body:resultBody];
 }
 /**
  * 日志输出
  * @param log 日志
  */
 - (void)SentenceRecgnizerLogOutPutWithLog:(NSString *_Nullable)log {
-  NSLog(@"一句话识别日志输出%@", log);
+  NSLog(@"%@, 统一日志输出: %@", _moduleName, log);
 }
 
 @end

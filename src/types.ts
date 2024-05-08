@@ -8,6 +8,8 @@ export interface CommonParams {
   secretKey: string;
   // 临时token鉴权
   token?: string;
+  // 不设置默认使用0, 用于按项目管理云资源，可以对云资源进行分项目管理，详情见 https://console.cloud.tencent.com/project
+  projectId?: number;
 }
 
 export interface RecognizerRequestParams {

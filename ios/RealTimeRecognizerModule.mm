@@ -9,6 +9,8 @@
   bool _hasListeners;
 }
 
+static NSString *_moduleName = @"RealTimeRecognizerModule";
+
 - (void)startObserving {
   _hasListeners = YES;
 }
@@ -42,9 +44,7 @@ RCT_EXPORT_MODULE()
 
 // 初始化实时语音识别
 RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
-
-  NSLog(@"实时语音识别模块", @"用户自定义参数: %@", configParams);
-
+  NSLog(@"%@, 调用configure方法, 调用参数: %@", _moduleName, configParams);
   // 设置鉴权的参数
   NSString *appId = configParams[@"appId"];
   NSString *secretId = configParams[@"secretId"];
@@ -103,6 +103,7 @@ RCT_EXPORT_METHOD(configure : (NSDictionary *)configParams) {
 
 // 开始实时语音识别
 RCT_EXPORT_METHOD(startRealTimeRecognizer) {
+  NSLog(@"%@, 调用startRealTimeRecognizer方法", _moduleName);
   if (_isRecording) {
     return;
   }
@@ -111,7 +112,6 @@ RCT_EXPORT_METHOD(startRealTimeRecognizer) {
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord
                                          error:nil];
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
-  NSLog(@"开始实时语音识别");
   // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
   [_recognizer start];
@@ -119,7 +119,7 @@ RCT_EXPORT_METHOD(startRealTimeRecognizer) {
 
 // 结束实时语音识别
 RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
-  NSLog(@"结束实时语音识别");
+  NSLog(@"%@, 调用stopRealTimeRecognizer方法", _moduleName);
   _isRecording = NO;
   [_recognizer stop];
 }
@@ -128,15 +128,16 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
 - (void)realTimeRecognizerOnSliceRecognize:
             (QCloudRealTimeRecognizer *)recognizer
                                     result:(QCloudRealTimeResult *)result {
+  NSLog(@"%@, 语音分片的识别回调", _moduleName);
   NSDictionary *resultBody = @{
     @"code" : @([result code]),
     @"message" : [result message],
     @"voiceId" : [result voiceId],
     @"text" : [result text],
-    @"recognizedText" : [result recognizedText],
   };
   NSLog(@"语音包分片识别结果: %@", resultBody);
-  [self sendEventWithName:@"onSliceSuccessRecognize" body:resultBody];
+  [self sendEventWithName:@"RealTimeRecognizerModule.onSliceSuccessRecognize"
+                     body:resultBody];
 }
 
 // 持续返回的每句话的识别结果
@@ -144,6 +145,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
             (QCloudRealTimeRecognizer *)recognizer
                                              result:(QCloudRealTimeResult *)
                                                         result {
+  NSLog(@"%@, 每句话的识别结果回调", _moduleName);
   NSDictionary *resultBody = @{
     @"code" : @([result code]),
     @"message" : [result message],
@@ -151,21 +153,22 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
     @"text" : [result text],
   };
   NSLog(@"语音流的识别结果: %@", resultBody);
-  [self sendEventWithName:@"onSegmentSuccessRecognize" body:resultBody];
+  [self sendEventWithName:@"RealTimeRecognizerModule.onSegmentSuccessRecognize"
+                     body:resultBody];
 }
 
 // 识别任务总文本
 - (void)realTimeRecognizerDidFinish:(QCloudRealTimeRecognizer *)recognizer
                              result:(NSString *)result {
-  NSLog(@"识别任务总文本: %@", result);
-  [self sendEventWithName:@"onSuccessRecognize"
-                     body:@{@"recognizedText" : result}];
+  NSLog(@"%@, 识别任务最终的回调%@: ", _moduleName, result);
+  [self sendEventWithName:@"RealTimeRecognizerModule.onSuccessRecognize"
+                     body:@{@"text" : result}];
 }
 
 // 识别任务失败回调
 - (void)realTimeRecognizerDidError:(QCloudRealTimeRecognizer *)recognizer
                             result:(QCloudRealTimeResult *)result {
-  NSLog(@"识别任务失败回调: %@", [result jsonText]);
+  NSLog(@"%@, 识别任务失败回调%@: ", _moduleName, [result jsonText]);
   NSData *jsonData = [[result jsonText] dataUsingEncoding:NSUTF8StringEncoding];
   NSError *error;
   id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
@@ -173,48 +176,52 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
                                                     error:&error];
 
   if (jsonObject && !error) {
-    [self sendEventWithName:@"onErrorRecognize" body:jsonObject];
+    [self sendEventWithName:@"RealTimeRecognizerModule.onErrorRecognize"
+                       body:jsonObject];
   }
 }
 
 // 开始录音回调
 - (void)realTimeRecognizerDidStartRecord:(QCloudRealTimeRecognizer *)recognizer
                                    error:(NSError *_Nullable)error {
-  NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
-  if (error) {
-    resultBody[@"error"] = @{
-      @"code" : error.userInfo[@"Code"],
-      @"message" : error.userInfo[@"Message"]
-    };
+  NSLog(@"%@, 开始录音回调", _moduleName);
+  if (error != nil) {
+    NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
+    resultBody[@"code"] = error.userInfo[@"Code"];
+    resultBody[@"message"] = error.userInfo[@"Message"];
+    [self sendEventWithName:@"RealTimeRecognizerModule.onError"
+                       body:resultBody];
+  } else {
+    [self sendEventWithName:@"RealTimeRecognizerModule.onStartRecord" body:nil];
   }
-  [self sendEventWithName:@"onStartRecord" body:resultBody];
 }
 
 // 结束录音回调
 - (void)realTimeRecognizerDidStopRecord:(QCloudRealTimeRecognizer *)recognizer {
-  [self sendEventWithName:@"onStopRecord" body:nil];
+  NSLog(@"%@, 结束录音回调", _moduleName);
+  [self sendEventWithName:@"RealTimeRecognizerModule.onStopRecord" body:nil];
 }
 
 // 录音音量(单位为分贝)实时回调,此回调计算音量的分贝值。
 - (void)realTimeRecognizerDidUpdateVolumeDB:
             (QCloudRealTimeRecognizer *)recognizer
                                      volume:(float)volume {
-  NSLog(@"录音音量(单位为分贝)实时回调: %@", @(volume));
-  [self sendEventWithName:@"onUpdateVolume" body:@{@"volume" : @(volume)}];
+  NSLog(@"%@, 录音音量实时回调, 音量:%@", _moduleName, @(volume));
+  [self sendEventWithName:@"RealTimeRecognizerModule.onUpdateVolume"
+                     body:@{@"volume" : @(volume)}];
 }
 
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。
 - (void)realTimeRecognizerDidSaveAudioDataAsFile:
             (QCloudRealTimeRecognizer *)recognizer
                                    audioFilePath:(NSString *)audioFilePath {
-  NSLog(@"录音文件: %@", audioFilePath);
-
-  [self sendEventWithName:@"onSaveAudioDataAsFile"
+  NSLog(@"%@, 结束录音回调, 音频文件路径:%@", _moduleName, audioFilePath);
+  [self sendEventWithName:@"RealTimeRecognizerModule.onSaveAudioDataAsFile"
                      body:@{@"audioFilePath" : audioFilePath}];
 }
 
 - (void)realTimeRecgnizerLogOutPutWithLog:(NSString *)log {
-  NSLog(@"实时语音识别日志输出%@", log);
+  NSLog(@"%@, 统一日志输出: %@", _moduleName, log);
 }
 
 @end

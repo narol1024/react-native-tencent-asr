@@ -8,7 +8,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -27,17 +26,9 @@ import com.tencent.aai.log.LoggerListener;
 import com.tencent.aai.model.AudioRecognizeConfiguration;
 import com.tencent.aai.model.AudioRecognizeRequest;
 import com.tencent.aai.model.AudioRecognizeResult;
-import com.tencent.cloud.qcloudasrsdk.onesentence.QCloudOneSentenceRecognizer;
-import com.tencent.cloud.qcloudasrsdk.onesentence.QCloudOneSentenceRecognizerAudioPathListener;
-import com.tencent.cloud.qcloudasrsdk.onesentence.QCloudOneSentenceRecognizerListener;
-import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudAudioFrequence;
-import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudSourceType;
-import com.tencent.cloud.qcloudasrsdk.onesentence.network.QCloudOneSentenceRecognitionParams;
 import com.tencentasr.util.ConfigParameterUtils;
 import com.tencentasr.util.ErrorTypes;
 import com.tencentasr.util.ReactNativeJsonUtils;
-import java.io.File;
-import java.io.FileInputStream;
 import org.json.JSONObject;
 
 // 本地模块错误
@@ -54,10 +45,11 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
   private String _secretKey;
   // 不设置默认使用0，说明：项目功能用于按项目管理云资源，可以对云资源进行分项目管理，详情见
   // https://console.cloud.tencent.com/project
-  private int _projectId;
+  private int _projectId = 0;
   private String _token;
   private AAIClient _aaiClient;
-  private ReactContext _reactContext;
+  private Boolean _isRecording = false;
+  private final ReactContext _reactContext;
   private AudioRecognizeRequest _audioRecognizeRequest;
   private AudioRecognizeResultListener _audioRecognizeResultlistener;
   private AudioRecognizeStateListener _audioRecognizeStateListener;
@@ -121,7 +113,7 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
         ConfigParameterUtils.getIntOrDefault(configParams, "projectId", 0);
     _token = configParams.getString("token");
 
-    // 2、初始化语音识别请求
+    // 初始化语音识别请求
     AudioRecognizeRequest.Builder builder = new AudioRecognizeRequest.Builder();
     _audioRecognizeRequest =
         builder.pcmAudioDataSource(new AudioRecordDataSource(false))
@@ -145,13 +137,13 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
                                  AudioRecognizeResult result, int seq) {
         try {
           JSONObject resultJson = new JSONObject(result.getResultJson());
-          JSONObject resultInnerJson = resultJson.getJSONObject("result");
+          JSONObject innerResultJson = resultJson.getJSONObject("result");
           WritableMap resultBody = Arguments.createMap();
 
           resultBody.putInt("code", resultJson.getInt("code"));
           resultBody.putString("message", resultJson.getString("message"));
           resultBody.putString("text",
-                               resultInnerJson.getString("voice_text_str"));
+                               innerResultJson.getString("voice_text_str"));
           resultBody.putString("voiceId", resultJson.getString("voice_id"));
 
           sendEvent(_reactContext, "onSliceSuccessRecognize", resultBody);
@@ -166,13 +158,13 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
                                    AudioRecognizeResult result, int seq) {
         try {
           JSONObject resultJson = new JSONObject(result.getResultJson());
-          JSONObject resultInnerJson = resultJson.getJSONObject("result");
+          JSONObject innerResultJson = resultJson.getJSONObject("result");
           WritableMap resultBody = Arguments.createMap();
 
           resultBody.putInt("code", resultJson.getInt("code"));
           resultBody.putString("message", resultJson.getString("message"));
           resultBody.putString("text",
-                               resultInnerJson.getString("voice_text_str"));
+                               innerResultJson.getString("voice_text_str"));
           resultBody.putString("voiceId", resultJson.getString("voice_id"));
 
           sendEvent(_reactContext, "onSegmentSuccessRecognize", resultBody);
@@ -186,7 +178,7 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
       public void onSuccess(AudioRecognizeRequest request, String result) {
         try {
           WritableMap resultBody = Arguments.createMap();
-          resultBody.putString("recognizedText", result);
+          resultBody.putString("text", result);
           sendEvent(_reactContext, "onSuccessRecognize", resultBody);
         } catch (Exception e) {
           sendErrorEvent(
@@ -217,7 +209,7 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
         }
       }
     };
-    // 3.1、初始化语音识别的状态监听器。
+    // 初始化语音识别的状态监听器。
     _audioRecognizeStateListener = new AudioRecognizeStateListener() {
       // 开始录音
       public void onStartRecord(AudioRecognizeRequest audioRecognizeRequest) {
@@ -247,7 +239,7 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
       }
     };
 
-    // 4、自定义识别配置
+    // 自定义识别配置
     _audioRecognizeConfiguration = new AudioRecognizeConfiguration.Builder()
                                        .setSilentDetectTimeOut(false)
                                        .audioFlowSilenceTimeOut(5000)
@@ -256,13 +248,18 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
     initializeRecognizer();
   }
 
-  // 5、启动语音识别
+  // 启动语音识别
   @ReactMethod
   public void startRealTimeRecognizer() {
+    Log.i(ModuleName, "调用startRealTimeRecognizer方法");
+    if (_isRecording) {
+      return;
+    }
     new Thread(new Runnable() {
       @Override
       public void run() {
         if (_aaiClient != null) {
+          _isRecording = true;
           _aaiClient.startAudioRecognize(
               _audioRecognizeRequest, _audioRecognizeResultlistener,
               _audioRecognizeStateListener, _audioRecognizeConfiguration);
@@ -274,9 +271,11 @@ public class RealTimeRecognizerModule extends ReactContextBaseJavaModule {
   // 停止语音识别，等待最终识别结果
   @ReactMethod
   public void stopRealTimeRecognizer() {
+    Log.i(ModuleName, "调用stopRealTimeRecognizer方法");
     new Thread(new Runnable() {
       public void run() {
         if (_aaiClient != null) {
+          _isRecording = false;
           _aaiClient.stopAudioRecognize();
         }
       }

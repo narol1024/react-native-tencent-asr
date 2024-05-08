@@ -10,7 +10,7 @@ const dirs = RNFetchBlob.fs.dirs;
 export function FlashFileRecognizerApp(props: any) {
   useEffect(() => {
     FlashFileRecognizerModule.addListener('onError', (error) => {
-      console.error(error);
+      console.error('发生错误: ', error);
     });
     return () => {
       FlashFileRecognizerModule.removeAllListeners('onError');
@@ -54,7 +54,5 @@ export function FlashFileRecognizerApp(props: any) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderTopColor: '#dedede',
-    borderTopWidth: 1,
   },
 });

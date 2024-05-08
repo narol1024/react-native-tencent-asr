@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    gap: 10,
+    gap: 20,
   },
   resultView: {
     width: '100%',
