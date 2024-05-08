@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.tencentasr.module.FlashFileRecognizerModule;
 import com.tencentasr.module.OneSentenceRecognizerModule;
+import com.tencentasr.module.RealTimeRecognizerModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ public class TencentAsrPackage implements ReactPackage {
     List<NativeModule> modules = new ArrayList<>();
     modules.add(new FlashFileRecognizerModule(reactContext));
     modules.add(new OneSentenceRecognizerModule(reactContext));
+    modules.add(new RealTimeRecognizerModule(reactContext));
     return modules;
   }
 

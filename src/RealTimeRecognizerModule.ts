@@ -7,13 +7,13 @@ import type {
 import type { EmitterSubscription } from 'react-native';
 import { keysToCamelCase } from './util';
 
-const NativeModulesEmitter = new NativeEventEmitter(
+const nativeEventEmitter = new NativeEventEmitter(
   NativeModules.RealTimeRecognizerModule
 );
 
 function addListener(
   // 每个语音包分片识别结果
-  eventName: 'onSliceRecognize',
+  eventName: 'onSliceSuccessRecognize',
   eventCallback: (result: {
     code: number;
     message: string;
@@ -33,44 +33,52 @@ function addListener(
     voiceId: string;
   }) => void
 ): EmitterSubscription;
-// 一次识别任务成功完成后的成功回调
+// 一次识别任务最终的结果
 function addListener(
-  eventName: 'didFinish',
+  eventName: 'onSuccessRecognize',
   eventCallback: (result: { recognizedText: string }) => void
 ): EmitterSubscription;
 // 一次识别任务失败回调
 function addListener(
-  eventName: 'didError',
+  eventName: 'onErrorRecognize',
   eventCallback: (result: RecognizerError) => void
 ): EmitterSubscription;
 // 开始录音回调
 function addListener(
-  eventName: 'didStartRecord',
+  eventName: 'onStartRecord',
   eventCallback: (result: { error: RecognizerError }) => void
 ): EmitterSubscription;
 // 结束录音回调
 function addListener(
-  eventName: 'didStopRecord',
+  eventName: 'onStopRecord',
   eventCallback: () => void
 ): EmitterSubscription;
 // 录音音量(单位为分贝)实时回调,此回调计算音量的分贝值
 function addListener(
-  eventName: 'didUpdateVolume',
+  eventName: 'onUpdateVolume',
   eventCallback: (result: { volume: number }) => void
 ): EmitterSubscription;
 // 录音停止后回调一次，再次开始录音会清空上一次保存的文件。
 function addListener(
-  eventName: 'didSaveAudioDataAsFile',
+  eventName: 'onSaveAudioDataAsFile',
   eventCallback: (result: { audioFilePath: string }) => void
+): EmitterSubscription;
+// 各种处理错误事件
+function addListener(
+  eventName: 'onError',
+  eventCallback: (err: { code: string; message: string }) => void
 ): EmitterSubscription;
 // 其它事件
 function addListener(
   eventName: string,
   eventCallback: (result: any) => void
 ): EmitterSubscription {
-  return NativeModulesEmitter.addListener(eventName, (result: any) => {
-    return eventCallback(keysToCamelCase(result));
-  });
+  return nativeEventEmitter.addListener(
+    'RealTimeRecognizerModule.' + eventName,
+    (result: any) => {
+      return eventCallback(keysToCamelCase(result));
+    }
+  );
 }
 
 // 实时语音模块
@@ -94,12 +102,15 @@ export const RealTimeRecognizerModule = {
     eventName:
       | 'onSliceRecognize'
       | 'onSegmentSuccessRecognize'
-      | 'didError'
-      | 'didStartRecord'
-      | 'didStopRecord'
-      | 'didUpdateVolumeDB'
-      | 'didSaveAudioDataAsFile'
+      | 'onErrorRecognize'
+      | 'onStartRecord'
+      | 'onStopRecord'
+      | 'onUpdateVolume'
+      | 'onSaveAudioDataAsFile'
+      | 'onError'
   ) {
-    return NativeModulesEmitter.removeAllListeners(eventName);
+    return nativeEventEmitter.removeAllListeners(
+      'RealTimeRecognizerModule.' + eventName
+    );
   },
 };

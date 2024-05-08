@@ -7,7 +7,7 @@ import type {
 } from './types';
 import { keysToCamelCase } from './util';
 
-const NativeModulesEmitter = new NativeEventEmitter(
+const nativeModulesEmitter = new NativeEventEmitter(
   NativeModules.FlashFileRecognizerModule
 );
 
@@ -21,9 +21,12 @@ function addListener(
   eventName: string,
   eventCallback: (result: any) => void
 ): EmitterSubscription {
-  return NativeModulesEmitter.addListener(eventName, (result) => {
-    return eventCallback(keysToCamelCase(result));
-  });
+  return nativeModulesEmitter.addListener(
+    'FlashFileRecognizerModule.' + eventName,
+    (result) => {
+      return eventCallback(keysToCamelCase(result));
+    }
+  );
 }
 
 // 录音文件识别极速版模块
@@ -49,6 +52,8 @@ export const FlashFileRecognizerModule = {
   addListener,
   // 移除事件
   removeAllListeners(eventName: 'onError') {
-    return NativeModulesEmitter.removeAllListeners(eventName);
+    return nativeModulesEmitter.removeAllListeners(
+      'FlashFileRecognizerModule.' + eventName
+    );
   },
 };

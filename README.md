@@ -93,12 +93,13 @@ RealTimeRecognizerModuleEmitter.addListener(
 
 - onSliceRecognize
 - onSegmentSuccessRecognize
-- didFinish
-- didError
-- didStartRecord
-- didStopRecord
-- didUpdateVolume
-- didSaveAudioDataAsFile
+- onSliceSuccessRecognize
+- onErrorRecognize
+- onStartRecord
+- onStopRecord
+- onUpdateVolume
+- onSilentDetectTimeOut(仅支持Android)
+- onSaveAudioDataAsFile
 - onError
 
 ### 一句话识别
@@ -164,10 +165,10 @@ OneSentenceRecognizerModuleEmitter.addListener(
 
 详细事件列表，请查看SDK文档, https://cloud.tencent.com/document/product/1093/36502
 
-- didRecognize
-- didStartRecord
-- didEndRecord
-- didUpdateVolume
+- onRecognize
+- onStartRecord
+- onStopRecord
+- onUpdateVolume
 - onError
 
 ### 录音文件识别极速版

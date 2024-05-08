@@ -9,13 +9,13 @@ import type {
 } from './types';
 import { keysToCamelCase } from './util';
 
-const NativeModulesEmitter = new NativeEventEmitter(
+const nativeEventEmitter = new NativeEventEmitter(
   NativeModules.OneSentenceRecognizerModule
 );
 
 function addListener(
   // 识别回调
-  eventName: 'didRecognize',
+  eventName: 'onRecognize',
   eventCallback: (result: {
     audioDuration: number;
     requestId: string;
@@ -32,17 +32,17 @@ function addListener(
 ): EmitterSubscription;
 // 开始录音回调
 function addListener(
-  eventName: 'didStartRecord',
+  eventName: 'onStartRecord',
   eventCallback: (result: { error: RecognizerError } | null) => void
 ): EmitterSubscription;
 // 结束录音回调
 function addListener(
-  eventName: 'didEndRecord',
+  eventName: 'onStopRecord',
   eventCallback: (result: { audioFilePath: string }) => void
 ): EmitterSubscription;
 // 录音音量实时回调
 function addListener(
-  eventName: 'didUpdateVolume',
+  eventName: 'onUpdateVolume',
   eventCallback: (result: { volume: number }) => void
 ): EmitterSubscription;
 // 各种处理错误事件
@@ -55,9 +55,12 @@ function addListener(
   eventName: string,
   eventCallback: (result: any) => void
 ): EmitterSubscription {
-  return NativeModulesEmitter.addListener(eventName, (result) => {
-    return eventCallback(keysToCamelCase(result));
-  });
+  return nativeEventEmitter.addListener(
+    'OneSentenceRecognizerModule.' + eventName,
+    (result) => {
+      return eventCallback(keysToCamelCase(result));
+    }
+  );
 }
 
 // 一句话识别模块
@@ -75,8 +78,8 @@ export const OneSentenceRecognizerModule = {
     NativeModules.OneSentenceRecognizerModule.recognizeWithParams(params);
   },
   // 一句话识别(内置录音器), 开始录音, 安卓确保先请求录音权限
-  async recognizeWithRecorder(params: { engineModelType?: string } = {}) {
-    NativeModules.OneSentenceRecognizerModule.recognizeWithRecorder(params);
+  async recognizeWithRecorder() {
+    NativeModules.OneSentenceRecognizerModule.recognizeWithRecorder();
   },
   //  一句话识别(内置录音器), 停止录音
   stopRecognizeWithRecorder() {
@@ -87,12 +90,14 @@ export const OneSentenceRecognizerModule = {
   // 移除事件
   removeAllListeners(
     eventName:
-      | 'didRecognize'
-      | 'didStartRecord'
-      | 'didEndRecord'
-      | 'didUpdateVolume'
+      | 'onRecognize'
+      | 'onStartRecord'
+      | 'onStopRecord'
+      | 'onUpdateVolume'
       | 'onError'
   ) {
-    return NativeModulesEmitter.removeAllListeners(eventName);
+    return nativeEventEmitter.removeAllListeners(
+      'OneSentenceRecognizerModule.' + eventName
+    );
   },
 };

@@ -47,7 +47,7 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
                          WritableMap params) {
     reactContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-        .emit(eventName, params);
+        .emit(ModuleName + "." + eventName, params);
   }
 
   @ReactMethod
@@ -56,7 +56,9 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
   @ReactMethod
   public void removeListeners(Integer count) {}
 
+  // 模块名称
   @Override
+  @NonNull
   public String getName() {
     return ModuleName;
   }
@@ -126,7 +128,7 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
     if (audioFilePath == null) {
       sendErrorEvent(FlashFileRecognizerModuleErrorTypes.PARAMETER_MISSING,
                      "audioFilePath参数缺失");
-      promise.reject(new RuntimeException("audioFilePath参数缺失"));
+      promise.reject("audioFilePath参数缺失");
       return;
     }
 
@@ -134,7 +136,7 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
     if (!audioFile.exists()) {
       sendErrorEvent(FlashFileRecognizerModuleErrorTypes.FILE_DOES_NOT_EXIST,
                      "音频文件不存在");
-      promise.reject(new RuntimeException("音频文件不存在"));
+      promise.reject("音频文件不存在");
       return;
     }
     try {
@@ -149,12 +151,12 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
       } catch (Exception e) {
         sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
                        e.getMessage());
-        promise.reject(new RuntimeException(e.getMessage()));
+        promise.reject(e.getMessage());
       }
     } catch (Exception e) {
       sendErrorEvent(FlashFileRecognizerModuleErrorTypes.FILE_READ_FAILED,
                      "读取音频文件失败");
-      promise.reject(new RuntimeException("读取音频文件失败"));
+      promise.reject("读取音频文件失败", e);
     }
   }
 
@@ -167,8 +169,7 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
         if (resultJson.getInt("code") == 0) {
           _promise.resolve(ReactNativeJsonUtils.convertJsonToMap(resultJson));
         } else {
-          _promise.reject(
-              new RuntimeException(resultJson.getString("message")));
+          _promise.reject(resultJson.getString("message"));
         }
       } catch (Exception e) {
         sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
@@ -177,8 +178,8 @@ public class FlashFileRecognizerModule extends ReactContextBaseJavaModule
 
     } else {
       sendErrorEvent(FlashFileRecognizerModuleErrorTypes.RECOGNIZE_FAILED,
-                     exception.getLocalizedMessage());
-      _promise.reject(new RuntimeException(exception.getLocalizedMessage()));
+                     exception.getMessage());
+      _promise.reject(exception.getMessage());
     }
   }
 }

@@ -1,24 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  SafeAreaView,
+  Platform,
+  PermissionsAndroid,
+} from 'react-native';
 
-// import { RealTimeRecognizerApp } from './RealTimeRecognizerApp';
+import { RealTimeRecognizerApp } from './RealTimeRecognizerApp';
 import { FlashFileRecognizerApp } from './FlashFileRecognizerApp';
 import { OneSentenceRecognizerApp } from './OneSentenceRecognizer';
 
 export default function App() {
   const [result, setResult] = React.useState<string>('');
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.request('android.permission.RECORD_AUDIO').then(
+        (granted) => {
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('已授权录音');
+          }
+        }
+      );
+    }
+  }, []);
   return (
     <SafeAreaView style={styles.app}>
       <View style={styles.container}>
         <View style={styles.resultView}>
           {result && <Text>识别结果: {result}</Text>}
         </View>
-        {/* <RealTimeRecognizerApp
+        <RealTimeRecognizerApp
           onRecognize={(result: string) => {
             setResult(result);
           }}
-        /> */}
+        />
         <OneSentenceRecognizerApp
           onRecognize={(result: string) => {
             setResult(result);
@@ -44,6 +62,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'flex-start',
+    gap: 10,
   },
   resultView: {
     width: '100%',

@@ -63,7 +63,6 @@ android {
 
   lintOptions {
     disable "GradleCompatible"
-    disable "LongLogTag"
   }
 
   compileOptions {
@@ -84,6 +83,7 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation 'com.google.code.gson:gson:2.8.5'
+  implementation 'com.squareup.okhttp3:okhttp:4.2.2' 
   implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 }
 

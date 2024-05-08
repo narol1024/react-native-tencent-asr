@@ -24,10 +24,11 @@
 
 - (NSArray<NSString *> *)supportedEvents {
   return @[
-    @"didRecognize",
-    @"didStartRecord",
-    @"didEndRecord",
-    @"didUpdateVolume",
+    @"OneSentenceRecognizerModule.onRecognize",
+    @"OneSentenceRecognizerModule.onStartRecord",
+    @"OneSentenceRecognizerModule.onStopRecord",
+    @"OneSentenceRecognizerModule.onUpdateVolume",
+    @"OneSentenceRecognizerModule.onError",
   ];
 }
 
@@ -180,7 +181,7 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
     resultBody[@"data"] = resultData[@"Response"];
   }
   NSLog(@"一句话识别回调结果: %@", resultBody);
-  [self sendEventWithName:@"didRecognize" body:resultBody];
+  [self sendEventWithName:@"onRecognize" body:resultBody];
 }
 
 /**
@@ -207,7 +208,7 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
     @"audioFilePath" : audioFilePath,
   };
   NSLog(@"结束录音回调: %@", resultBody);
-  [self sendEventWithName:@"didEndRecord" body:resultBody];
+  [self sendEventWithName:@"onStopRecord" body:resultBody];
 }
 
 /**
@@ -222,7 +223,7 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
     @"volume" : @(volume),
   };
   NSLog(@"录音音量实时回调: %@", resultBody);
-  [self sendEventWithName:@"didUpdateVolume" body:resultBody];
+  [self sendEventWithName:@"onUpdateVolume" body:resultBody];
 }
 /**
  * 日志输出

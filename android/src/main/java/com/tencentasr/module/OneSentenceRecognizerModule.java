@@ -2,6 +2,7 @@
 package com.tencentasr.module;
 import android.app.Activity;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
@@ -56,7 +57,7 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
                          WritableMap params) {
     reactContext
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-        .emit(eventName, params);
+        .emit(ModuleName + "." + eventName, params);
   }
   @ReactMethod
   public void addListener(String eventName) {}
@@ -64,7 +65,9 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
   @ReactMethod
   public void removeListeners(Integer count) {}
 
+  // 模块名称
   @Override
+  @NonNull
   public String getName() {
     return ModuleName;
   }
@@ -203,13 +206,12 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
       try {
         JSONObject resultJson = new JSONObject(result);
         JSONObject response = resultJson.getJSONObject("Response");
-        WritableMap resultBody = Arguments.createMap();
         if (response.has("Error")) {
           JSONObject errorObject = response.getJSONObject("Error");
           sendErrorEvent(errorObject.getString("Code"),
                          errorObject.getString("Message"));
         } else {
-          sendEvent(_reactContext, "didRecognize",
+          sendEvent(_reactContext, "onRecognize",
                     ReactNativeJsonUtils.convertJsonToMap(response));
         }
       } catch (Exception e) {
@@ -223,6 +225,20 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
     }
   }
 
-  public void didStartRecord() { Log.i("一句话识别模块", "didStartRecord"); }
-  public void didStopRecord() { Log.d("一句话识别模块", "didStopRecord"); }
+  public void didStartRecord() {
+    Log.i(ModuleName, "回调didStartRecord");
+    sendEvent(_reactContext, "onStartRecord", Arguments.createMap());
+  }
+
+  public void didStopRecord() {
+    Log.i(ModuleName, "回调didStopRecord");
+    sendEvent(_reactContext, "onStopRecord", Arguments.createMap());
+  }
+
+  public void didUpdateVolume(int volumn) {
+    Log.i(ModuleName, "回调didUpdateVolume");
+    WritableMap resultBody = Arguments.createMap();
+    resultBody.putInt("volumn", volumn);
+    sendEvent(_reactContext, "onUpdateVolume", resultBody);
+  }
 }

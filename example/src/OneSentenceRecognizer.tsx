@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
 
 import { Button, StyleSheet, View } from 'react-native';
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
@@ -11,14 +10,17 @@ const dirs = RNFetchBlob.fs.dirs;
 export function OneSentenceRecognizerApp(props: any) {
   const [isRecording, setIsRecording] = useState(false);
   useEffect(() => {
-    OneSentenceRecognizerModule.addListener('didRecognize', (result) => {
+    OneSentenceRecognizerModule.addListener('onRecognize', (result) => {
       props.onRecognize(result.result);
     });
     OneSentenceRecognizerModule.addListener('onError', (error) => {
       console.error(error);
     });
+    OneSentenceRecognizerModule.addListener('onUpdateVolume', (result) => {
+      console.log('>>', result);
+    });
     return () => {
-      OneSentenceRecognizerModule.removeAllListeners('didRecognize');
+      OneSentenceRecognizerModule.removeAllListeners('onRecognize');
       OneSentenceRecognizerModule.removeAllListeners('onError');
     };
   }, [props]);
@@ -29,18 +31,6 @@ export function OneSentenceRecognizerApp(props: any) {
       secretId: SECRET_ID,
       secretKey: SECRET_KEY,
     });
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request('android.permission.RECORD_AUDIO').then(
-        (granted) => {
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('已授权录音');
-          }
-        }
-      );
-    }
   }, []);
 
   return (
@@ -96,6 +86,5 @@ const styles = StyleSheet.create({
     width: '100%',
     borderTopColor: '#dedede',
     borderTopWidth: 1,
-    marginBottom: 10,
   },
 });
