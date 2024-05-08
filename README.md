@@ -66,6 +66,7 @@ npm install react-native-tencent-asr
 #### 配置参数
 
 | 参数名称 | 类型 | 是否必填 | 参数描述 |
+| -------- | :----: | :------: | ------------ |
 | customizationId | string | false | 自学习模型id |
 
 ```javascript
@@ -81,6 +82,7 @@ FlashFileRecognizerModule.configure({
 #### 开始识别
 
 | 参数名称 | 类型 | 是否必填 | 参数描述 |
+| -------- | :----: | :------: | ------------ |
 | filePath | string | true | 音频文件路径 |
 
 ```javascript
@@ -125,6 +127,7 @@ OneSentenceRecognizerModule.configure({
 #### 一句话识别(网络URL)
 
 | 参数名称 | 类型 | 是否必填 | 参数描述 |
+| -------- | :----: | :------: | ------------ |
 | url | string | true | 音频URL |
 
 ```javascript
@@ -135,8 +138,9 @@ OneSentenceRecognizerModule.recognizeWithUrl({
 
 #### 一句话识别(本地音频)
 
-| 参数名称 | 类型 | 是否必填 | 参数描述 |
-| filePath | string | true | 音频文件路径 |
+| 参数名称 |  类型  | 是否必填 | 参数描述     |
+| -------- | :----: | :------: | ------------ |
+| filePath | string |   true   | 音频文件路径 |
 
 ```javascript
 OneSentenceRecognizerModule.recognizeWithParams({
