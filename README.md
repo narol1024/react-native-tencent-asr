@@ -24,9 +24,9 @@ npm install react-native-tencent-asr
 - 在 AndroidManifest.xml 添加如下权限：
 
 ```xml
-    < uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    < uses-permission android:name="android.permission.INTERNET"/>
-    < uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
 ## Features
