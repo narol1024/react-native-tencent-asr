@@ -47,7 +47,7 @@ npm install react-native-tencent-asr
 | appId              | string |   true   | 腾讯云 appId                                                                                                        |
 | secretId           | string |   true   | 腾讯云 secretId                                                                                                     |
 | secretKey          | string |   true   | 腾讯云 secretKey                                                                                                    |
-| token              | string |  false   |
+| token              | string |  false   | 临时token                                                                                                           |
 | projectId          | number |  false   | 不设置默认使用0, 用于按项目管理云资源，可以对云资源进行分项目管理，详情见 https://console.cloud.tencent.com/project |
 | engineModelType    | string |  false   | 引擎模型类型, 默认16k_zh                                                                                            |
 | voiceFormat        | string |  false   | 音频格式, 默认为aac                                                                                                 |
@@ -65,9 +65,9 @@ npm install react-native-tencent-asr
 
 #### 配置参数
 
-| 参数名称 | 类型 | 是否必填 | 参数描述 |
-| -------- | :----: | :------: | ------------ |
-| customizationId | string | false | 自学习模型id |
+| 参数名称        |  类型  | 是否必填 | 参数描述     |
+| --------------- | :----: | :------: | ------------ |
+| customizationId | string |  false   | 自学习模型id |
 
 ```javascript
 import { FlashFileRecognizerModule } from 'react-native-tencent-asr';
@@ -81,9 +81,9 @@ FlashFileRecognizerModule.configure({
 
 #### 开始识别
 
-| 参数名称 | 类型 | 是否必填 | 参数描述 |
+| 参数名称 |  类型  | 是否必填 | 参数描述     |
 | -------- | :----: | :------: | ------------ |
-| filePath | string | true | 音频文件路径 |
+| filePath | string |   true   | 音频文件路径 |
 
 ```javascript
 try {
@@ -126,9 +126,9 @@ OneSentenceRecognizerModule.configure({
 
 #### 一句话识别(网络URL)
 
-| 参数名称 | 类型 | 是否必填 | 参数描述 |
-| -------- | :----: | :------: | ------------ |
-| url | string | true | 音频URL |
+| 参数名称 |  类型  | 是否必填 | 参数描述 |
+| -------- | :----: | :------: | -------- |
+| url      | string |   true   | 音频URL  |
 
 ```javascript
 OneSentenceRecognizerModule.recognizeWithUrl({
