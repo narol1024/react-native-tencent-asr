@@ -187,7 +187,7 @@ RCT_EXPORT_METHOD(stopRealTimeRecognizer) {
   NSLog(@"%@, 开始录音回调", _moduleName);
   if (error != nil) {
     NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
-    resultBody[@"code"] = error.userInfo[@"Code"];
+    resultBody[@"code"] = @(error.code);
     resultBody[@"message"] = error.userInfo[@"Message"];
     [self sendEventWithName:@"RealTimeRecognizerModule.onError"
                        body:resultBody];

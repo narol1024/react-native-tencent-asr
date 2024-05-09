@@ -20,13 +20,11 @@ function addListener(
     audioDuration: number;
     requestId: string;
     result: string;
-    wordList:
-      | null
-      | {
-          startTime: number;
-          endTime: number;
-          word: string;
-        }[];
+    wordList: Array<{
+      startTime: number;
+      endTime: number;
+      word: string;
+    }> | null;
     wordSize: number;
   }) => void
 ): EmitterSubscription;

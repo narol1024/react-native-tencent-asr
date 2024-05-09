@@ -181,11 +181,11 @@ RCT_EXPORT_METHOD(stopRecognizeWithRecorder) {
 - (void)oneSentenceRecognizerDidStartRecord:
             (QCloudSentenceRecognizer *)recognizer
                                       error:(nullable NSError *)error {
-  NSLog(@"%@, 开始录音回调", _moduleName);
+  NSLog(@"%@, 开始录音回调, %@", _moduleName, error);
   if (error != nil) {
     NSMutableDictionary *resultBody = [[NSMutableDictionary alloc] init];
-    resultBody[@"code"] = error.userInfo[@"Code"];
-    resultBody[@"message"] = error.userInfo[@"Message"];
+    resultBody[@"code"] = @(error.code);
+    resultBody[@"message"] = error.userInfo[@"Reason"];
     [self sendEventWithName:@"OneSentenceRecognizerModule.onError"
                        body:resultBody];
   } else {
