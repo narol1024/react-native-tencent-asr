@@ -1,6 +1,6 @@
 {
   "name": "react-native-tencent-asr",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Tencent ASR SDK for React Native.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
