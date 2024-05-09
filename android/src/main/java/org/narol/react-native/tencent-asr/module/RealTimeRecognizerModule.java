@@ -1,5 +1,5 @@
 // @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
-package com.tencentasr.module;
+package org.narol.reactnative.tencentasr.module;
 import android.app.Activity;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -26,10 +26,10 @@ import com.tencent.aai.log.LoggerListener;
 import com.tencent.aai.model.AudioRecognizeConfiguration;
 import com.tencent.aai.model.AudioRecognizeRequest;
 import com.tencent.aai.model.AudioRecognizeResult;
-import com.tencentasr.util.ConfigParameterUtils;
-import com.tencentasr.util.ErrorTypes;
-import com.tencentasr.util.ReactNativeJsonUtils;
 import org.json.JSONObject;
+import org.narol.reactnative.tencentasrutil.ConfigParameterUtils;
+import org.narol.reactnative.tencentasrutil.ErrorTypes;
+import org.narol.reactnative.tencentasrutil.ReactNativeJsonUtils;
 
 // 本地模块错误
 class RealTimeRecognizerModuleErrorTypes extends ErrorTypes {

@@ -1,4 +1,4 @@
-package com.tencentasr.util;
+package org.narol.reactnative.tencentasrutil;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;

@@ -1,4 +1,4 @@
-package com.tencentasr.util;
+package org.narol.reactnative.tencentasrutil;
 
 public class ErrorTypes {
   // 参数缺失

@@ -1,6 +1,5 @@
 // @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
-
-package com.tencentasr.module;
+package org.narol.reactnative.tencentasr.module;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import com.facebook.react.bridge.Arguments;
@@ -15,12 +14,12 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.QCloudFlashRecognizer;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.QCloudFlashRecognizerListener;
 import com.tencent.cloud.qcloudasrsdk.filerecognize.param.QCloudFlashRecognitionParams;
-import com.tencentasr.util.ConfigParameterUtils;
-import com.tencentasr.util.ErrorTypes;
-import com.tencentasr.util.ReactNativeJsonUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import org.json.JSONObject;
+import org.narol.reactnative.tencentasrutil.ConfigParameterUtils;
+import org.narol.reactnative.tencentasrutil.ErrorTypes;
+import org.narol.reactnative.tencentasrutil.ReactNativeJsonUtils;
 
 // 本地模块错误
 class FlashFileRecognizerModuleErrorTypes extends ErrorTypes {}

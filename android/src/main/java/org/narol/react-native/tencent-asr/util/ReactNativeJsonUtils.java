@@ -1,4 +1,4 @@
-package com.tencentasr.util;
+package org.narol.reactnative.tencentasrutil;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;

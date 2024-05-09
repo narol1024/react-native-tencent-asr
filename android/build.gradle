@@ -38,7 +38,7 @@ def supportsNamespace() {
 
 android {
   if (supportsNamespace()) {
-    namespace "com.tencentasr"
+    namespace "org.narol.reactnative.tencentasr"
 
     sourceSets {
       main {

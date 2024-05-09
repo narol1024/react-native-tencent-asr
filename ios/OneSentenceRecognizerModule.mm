@@ -148,7 +148,7 @@ RCT_EXPORT_METHOD(startRecognizeWithRecorder) {
 
   // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
-  [_recognizer startRecognizeWithRecorder:_requestParams[@"engineModelType"]];
+  [_recognizer startRecognizeWithRecorder:_requestParams[@"engSerViceType"]];
 }
 
 // 停止录音并上传录音数据开始识别

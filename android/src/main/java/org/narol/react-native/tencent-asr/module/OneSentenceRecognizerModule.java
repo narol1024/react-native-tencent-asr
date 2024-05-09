@@ -1,5 +1,5 @@
 // @see SDK doc: https://cloud.tencent.com/document/product/1093/35723
-package com.tencentasr.module;
+package org.narol.reactnative.tencentasr.module;
 import android.app.Activity;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -17,12 +17,12 @@ import com.tencent.cloud.qcloudasrsdk.onesentence.QCloudOneSentenceRecognizerLis
 import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudAudioFrequence;
 import com.tencent.cloud.qcloudasrsdk.onesentence.common.QCloudSourceType;
 import com.tencent.cloud.qcloudasrsdk.onesentence.network.QCloudOneSentenceRecognitionParams;
-import com.tencentasr.util.ConfigParameterUtils;
-import com.tencentasr.util.ErrorTypes;
-import com.tencentasr.util.ReactNativeJsonUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import org.json.JSONObject;
+import org.narol.reactnative.tencentasrutil.ConfigParameterUtils;
+import org.narol.reactnative.tencentasrutil.ErrorTypes;
+import org.narol.reactnative.tencentasrutil.ReactNativeJsonUtils;
 
 // 本地模块错误
 class OneSentenceRecognizerModuleErrorTypes extends ErrorTypes {
@@ -190,6 +190,10 @@ public class OneSentenceRecognizerModule extends ReactContextBaseJavaModule
     }
     try {
       initializeRecognizer();
+      _recognizer.setDefaultParams(
+          _requestParams.getFilterDirty(), _requestParams.getFilterModal(),
+          _requestParams.getFilterPunc(), _requestParams.getConvertNumMode(),
+          _requestParams.getHotwordId(), _requestParams.getEngSerViceType());
       _recognizer.recognizeWithRecorder();
     } catch (Exception e) {
       sendErrorEvent(

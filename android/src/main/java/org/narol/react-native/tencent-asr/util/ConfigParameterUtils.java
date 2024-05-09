@@ -1,4 +1,4 @@
-package com.tencentasr.util;
+package org.narol.reactnative.tencentasrutil;
 import com.facebook.react.bridge.ReadableMap;
 
 public class ConfigParameterUtils {

@@ -1,16 +1,16 @@
-package com.tencentasr;
+package org.narol.reactnative.tencentasr;
 
 import androidx.annotation.NonNull;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
-import com.tencentasr.module.FlashFileRecognizerModule;
-import com.tencentasr.module.OneSentenceRecognizerModule;
-import com.tencentasr.module.RealTimeRecognizerModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.narol.reactnative.tencentasr.module.FlashFileRecognizerModule;
+import org.narol.reactnative.tencentasr.module.OneSentenceRecognizerModule;
+import org.narol.reactnative.tencentasr.module.RealTimeRecognizerModule;
 
 public class TencentAsrPackage implements ReactPackage {
   @NonNull
