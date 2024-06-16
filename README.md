@@ -1,11 +1,15 @@
-# react-native-tencent-asr
+<div align="center">
+	<img src="https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202406161634484.svg" width="200" height="200">
+	<h1>React-Native-Tencent-ASR</h1>
+	<p>
+		<b>A React Native wrapper around the Tencent Cloud ASR SDK for Android and iOS.</b>
+	</p>
+</div>
 
 [![npm version](https://img.shields.io/npm/v/react-native-tencent-asr.svg?style=flat)](https://www.npmjs.com/package/react-native-tencent-asr)
 [![npm](https://img.shields.io/npm/dm/react-native-tencent-asr.svg)](https://www.npmjs.com/package/react-native-tencent-asr)
 [![platform](https://img.shields.io/badge/platform-iOS%2FAndroid-lightgrey.svg?style=flat)](https://github.com/narol1024/react-native-tencent-asr)
 [![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat)](https://github.com/narol1024/react-native-tencent-asr/blob/main/LICENSE)
-
-A React Native wrapper around the Tencent Cloud ASR SDK for Android and iOS.
 
 ## Installation
 
@@ -97,9 +101,9 @@ try {
 
 #### 注册回调事件
 
-| 事件名称 | 类型 | 参数描述       |
-| -------- | :--: | -------------- |
-| onError  |  Function | 通用的错误事件 |
+| 事件名称 |   类型   | 参数描述       |
+| -------- | :------: | -------------- |
+| onError  | Function | 通用的错误事件 |
 
 ```javascript
 import { FlashFileRecognizerModule } from 'react-native-tencent-asr';
@@ -166,13 +170,13 @@ OneSentenceRecognizerModule.stopRecognizeWithRecorder();
 
 #### 注册回调事件
 
-| 事件名称       | 类型 | 参数描述                     |
-| -------------- | :--: | ---------------------------- |
-| onRecognize    |  Function | 识别结果回调                 |
-| onStartRecord  |  Function | 开始录音回调                 |
-| onStopRecord   |  Function | 结束录音回调                 |
-| onUpdateVolume |  Function | 录音音量(单位为分贝)实时回调 |
-| onError        |  Function | 通用的错误事件               |
+| 事件名称       |   类型   | 参数描述                     |
+| -------------- | :------: | ---------------------------- |
+| onRecognize    | Function | 识别结果回调                 |
+| onStartRecord  | Function | 开始录音回调                 |
+| onStopRecord   | Function | 结束录音回调                 |
+| onUpdateVolume | Function | 录音音量(单位为分贝)实时回调 |
+| onError        | Function | 通用的错误事件               |
 
 ```javascript
 import { OneSentenceRecognizerModule } from 'react-native-tencent-asr';
@@ -229,18 +233,18 @@ RealTimeRecognizerModule.stopRealTimeRecognizer();
 
 #### 注册回调事件
 
-| 事件名称                  | 类型 | 参数描述                                                                  |
-| ------------------------- | :--: | ------------------------------------------------------------------------- |
-| onSliceSuccessRecognize   |  Function | 每个语音包分片识别结果                                                    |
-| onSegmentSuccessRecognize |  Function | 语音流的识别结果,一次识别中可以包括多句话，这里持续返回的每句话的识别结果 |
-| onSuccessRecognize        |  Function | 一次识别任务最终的结果                                                    |
-| onErrorRecognize          |  Function | 一次识别任务失败回调                                                      |
-| onStartRecord             |  Function | 开始录音回调                                                              |
-| onStopRecord              |  Function | 结束录音回调                                                              |
-| onUpdateVolume            |  Function | 录音音量(单位为分贝)实时回调                                              |
-| onSilentDetectTimeOut     |  Function | 静音检测超时回调, 仅支持Android                                           |
-| onSaveAudioDataAsFile     |  Function | 录音停止后回调一次，再次开始录音会清空上一次保存的文件。                  |
-| onError                   |  Function | 通用的错误事件                                                            |
+| 事件名称                  |   类型   | 参数描述                                                                  |
+| ------------------------- | :------: | ------------------------------------------------------------------------- |
+| onSliceSuccessRecognize   | Function | 每个语音包分片识别结果                                                    |
+| onSegmentSuccessRecognize | Function | 语音流的识别结果,一次识别中可以包括多句话，这里持续返回的每句话的识别结果 |
+| onSuccessRecognize        | Function | 一次识别任务最终的结果                                                    |
+| onErrorRecognize          | Function | 一次识别任务失败回调                                                      |
+| onStartRecord             | Function | 开始录音回调                                                              |
+| onStopRecord              | Function | 结束录音回调                                                              |
+| onUpdateVolume            | Function | 录音音量(单位为分贝)实时回调                                              |
+| onSilentDetectTimeOut     | Function | 静音检测超时回调, 仅支持Android                                           |
+| onSaveAudioDataAsFile     | Function | 录音停止后回调一次，再次开始录音会清空上一次保存的文件。                  |
+| onError                   | Function | 通用的错误事件                                                            |
 
 ```javascript
 import { RealTimeRecognizerModule } from 'react-native-tencent-asr';
