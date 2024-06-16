@@ -8,7 +8,7 @@
 
 [![npm version](https://img.shields.io/npm/v/react-native-tencent-asr.svg?style=flat)](https://www.npmjs.com/package/react-native-tencent-asr)
 [![npm](https://img.shields.io/npm/dm/react-native-tencent-asr.svg)](https://www.npmjs.com/package/react-native-tencent-asr)
-[![platform](https://img.shields.io/badge/platform-iOS%2FAndroid-lightgrey.svg?style=flat)](https://github.com/narol1024/react-native-tencent-asr)
+[![platform](https://img.shields.io/badge/platform-iOS%2FAndroid-green.svg?style=flat)](https://github.com/narol1024/react-native-tencent-asr)
 [![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat)](https://github.com/narol1024/react-native-tencent-asr/blob/main/LICENSE)
 
 ## Installation
