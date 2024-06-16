@@ -1,6 +1,6 @@
 {
   "name": "react-native-tencent-asr",
-  "version": "0.7.2",
+  "version": "0.7.3-alpha.1",
   "description": "Tencent ASR SDK for React Native.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -101,7 +101,11 @@
   "release-it": {
     "git": {
       "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
+      "tagName": "v${version}",
+      "requireBranch": [
+        "main",
+        "develop"
+      ]
     },
     "npm": {
       "publish": true
