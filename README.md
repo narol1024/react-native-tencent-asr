@@ -28,20 +28,20 @@ npm install react-native-tencent-asr
 - 在 AndroidManifest.xml 添加如下权限：
 
 ```xml
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
 - 拥有tecentcloud asr的sdk包没有发布到maven，因此需要编辑 android/build.gradle, 添加flatDir配置来应用这些包。
 
 ```
 allprojects {
-	repositories {
-		flatDir {
-			dirs project(':rn-spotify-sdk').file('libs')
-		}
-	}
+  repositories {
+    flatDir {
+      dirs project(':react-native-tencent-asr').file('libs')
+    }
+  }
 }
 ```
 
