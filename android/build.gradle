@@ -5,7 +5,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:7.2.1"
+   classpath 'com.android.tools.build:gradle:3.4.1'
   }
 }
 
@@ -76,7 +76,6 @@ repositories {
   google()
 }
 
-
 dependencies {
   // For < 0.71, this will be from the local maven repo
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
@@ -84,6 +83,8 @@ dependencies {
   implementation "com.facebook.react:react-native:+"
   implementation 'com.google.code.gson:gson:2.8.5'
   implementation 'com.squareup.okhttp3:okhttp:4.2.2' 
-  compileOnly fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+  implementation(name: 'asr-file-recognize-release', ext: 'aar')
+  implementation(name: 'asr-one-sentence-release', ext: 'aar')
+  implementation(name: 'asr-realtime-release', ext: 'aar')
 }
 

@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202406161634484.svg" width="200" height="200">
+	<img src="https://narol-blog.oss-cn-beijing.aliyuncs.com/blog-img/202406162113801.svg" width="200" height="200">
 	<h1>React-Native-Tencent-ASR</h1>
 	<p>
 		<b>A React Native wrapper around the Tencent Cloud ASR SDK for Android and iOS.</b>
@@ -31,6 +31,18 @@ npm install react-native-tencent-asr
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
+- 拥有tecentcloud asr的sdk包没有发布到maven，因此需要编辑 android/build.gradle, 添加flatDir配置来应用这些包。
+
+```
+allprojects {
+	repositories {
+		flatDir {
+			dirs project(':rn-spotify-sdk').file('libs')
+		}
+	}
+}
 ```
 
 ## Features
