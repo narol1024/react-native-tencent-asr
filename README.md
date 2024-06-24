@@ -33,7 +33,7 @@ npm install react-native-tencent-asr
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-- 拥有tecentcloud asr的sdk包没有发布到maven，因此需要编辑 android/build.gradle, 添加flatDir配置来应用这些包。
+- 因为腾讯云ASR SDK包暂时没有发布到maven，需要手动设置 android/build.gradle, 添加flatDir配置来引用对应的SDK包。
 
 ```
 allprojects {

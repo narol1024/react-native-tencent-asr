@@ -91,7 +91,7 @@ RCT_EXPORT_METHOD(recognizeWithUrl : (NSDictionary *)configParams) {
   NSString *voiceFormat = configParams[@"voiceFormat"] ?: @"aac";
   NSString *engineModelType = configParams[@"engineModelType"] ?: @"16k_zh";
 
-  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  // 每个Recognizer都有有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
   // 指定语音数据url 语音数据格式 识别引擎
   // 支持的格式及引擎名称以API文档为准，见https://cloud.tencent.com/document/product/1093/35646
@@ -107,7 +107,7 @@ RCT_EXPORT_METHOD(recognizeWithParams : (NSDictionary *)configParams) {
   NSString *url = configParams[@"url"];
   NSString *audioFilePath = configParams[@"audioFilePath"];
 
-  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  // 每个Recognizer都有有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
 
   // 获取一个已设置默认参数params
@@ -146,7 +146,7 @@ RCT_EXPORT_METHOD(startRecognizeWithRecorder) {
                                          error:nil];
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
 
-  // 每个Recognizer有效期, 每次调用都需要初始化1次, 以保持活跃状态
+  // 每个Recognizer都有有效期, 每次调用都需要初始化1次, 以保持活跃状态
   [self initializeRecognizer];
   [_recognizer startRecognizeWithRecorder:_requestParams[@"engSerViceType"]];
 }
